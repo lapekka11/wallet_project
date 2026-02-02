@@ -1,0 +1,44 @@
+{
+  "name": "wallet_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+     "dev": "npm-run-all --parallel hardhat:node frontend:dev",
+    "hardhat:node": "cd contracts && npx hardhat node --port 9545",
+    "hardhat:compile": "cd contracts && npx hardhat compile",
+    "hardhat:deploy": "cd contracts && npx hardhat run scripts/deploy.ts --network localhost",
+    "frontend:dev": "vite",
+    "frontend:build": "vite build",
+    "setup": "npm install && cd contracts && npm install",
+    "test": "cd contracts && npx hardhat test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^4.0.4",
+    "@nomicfoundation/hardhat-ignition": "^3.0.7",
+    "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.2",
+    "@types/chai": "^4.3.20",
+    "@types/chai-as-promised": "^8.0.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.19.7",
+    "chai": "^5.3.3",
+    "ethers": "^6.16.0",
+    "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.1.5",
+    "mocha": "^11.7.5",
+    "typescript": "~5.8.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "npm-run-all": "^4.1.5",
+    "vite": "^5.0.0"
+  },
+  "type": "module",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+     "ethers": "^6.10.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  }
+}
