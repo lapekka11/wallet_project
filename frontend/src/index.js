@@ -74,7 +74,7 @@ export const CreateWalletPage = {
           </label>
         </div>
         
-        <button type="submit" class="btn btn-primary btn-large">
+        <button id ="submit" type="submit" class="btn btn-primary btn-large">
           Generate Wallet
         </button>
       </form>
@@ -89,7 +89,7 @@ export const CreateWalletPage = {
   
   init: async () => {
     console.log('Create wallet page loaded');
-    await import('/src//createWallet.js').then(module => module.init());
+    await import('/src/createWallet.js').then(module => module.initWalletCreation && module.initWalletCreation());
   }
 };
 

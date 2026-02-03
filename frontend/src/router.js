@@ -1,6 +1,4 @@
-import {initWalletCreation} from './createWallet.js';
-
- import {initDashboard} from './dashboard.js';
+// Dynamic imports will be used for page-specific initialization
 
 export class Router {
   constructor() {
@@ -77,11 +75,10 @@ export class Router {
     // Dynamically import page-specific JS based on current route
     switch(this.currentPath) {
       case '/create':
-        initWalletCreation();
+        await import('/src/createWallet.js').then(m => m.initWalletCreation && m.initWalletCreation());
         break;
       case '/dashboard':
-       
-        initDashboard();
+        await import('/src/dashboard.js').then(m => m.initDashboard && m.initDashboard());
         break;
       // ... other routes
     }
