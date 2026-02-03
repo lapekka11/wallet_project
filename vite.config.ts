@@ -5,16 +5,17 @@ export default defineConfig({
   root: './frontend',
   server: {
     port: 3000,
-    open: true
+    open: '/',
+  },
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: resolve(__dirname, 'frontend/index.html')
+    }
   },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'frontend/src')
-    }
-  },
-  build: {
-    rollupOptions: {
-      input: resolve(__dirname, 'frontend/src/home.html')
     }
   }
 });

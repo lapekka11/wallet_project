@@ -1,11 +1,54 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="refresh" content="0;URL=/src/home.html">
-    <title>Redirecting…</title>
-  </head>
-  <body>
-    <p>Redirecting to <a href="/src/home.html">home</a>…</p>
-  </body>
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Crypto Wallet</title>
+    <link rel="stylesheet" href="/src/home.css">
+</head>
+<body>
+    <!-- Main app container - everything renders here -->
+    <div id="app">
+    <div class="home-page">
+      <header>
+        <h1>🔐 My Crypto Wallet</h1>
+        <p>Secure, non-custodial Ethereum wallet</p>
+      </header>
+      
+      <div class="actions">
+        <a href="/create" data-route class="btn btn-primary btn-large">
+          Create New Wallet
+        </a>
+        
+        <a href="/import" data-route class="btn btn-secondary btn-large">
+          Import Existing Wallet
+        </a>
+      </div>
+      
+      <div class="info">
+        <h3>Security First</h3>
+        <ul>
+          <li>Private keys never leave your device</li>
+          <li>No servers - everything runs locally</li>
+          <li>Encrypted with your password</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+    
+    <div id="globalModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"></h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+    
+    <div id="notificationContainer" class="notifications"></div>
+    
+    <script type="module" src="main.js"></script>
+</body>
 </html>
