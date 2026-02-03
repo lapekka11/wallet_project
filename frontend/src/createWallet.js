@@ -1,16 +1,16 @@
 import {ethers} from 'ethers';
-
+import {db} from '../main.js';
 
 class Wallet {
     constructor(password,address){
         this.password = password;
         this.address = address;
+        this.transactions =[];
     }
 }
 
-const wallets = [];
 
-export function initWalletCreation(){
+export async function initWalletCreation(){
     console.log('Initializing wallet creation scripts');
     const submit = document.getElementById('submit');
     const passwordField = document.getElementById('password');
@@ -44,7 +44,7 @@ export function initWalletCreation(){
         }
     });
 
-    submit.addEventListener('click', (e) => {
+    submit.addEventListener('click', async (e) => {
         e.preventDefault();
         if (passwordField.value !== confirmPasswordField.value) {
             alert('Passwords do not match. Please try again.');
@@ -63,14 +63,17 @@ export function initWalletCreation(){
 
         let seedPhrase = wallet.mnemonic.phrase;
         let prompt = confirm('Your seed phrase (write it down and keep it safe): \n'+ seedPhrase);
-        if(prompt){
-            wallets.push(new Wallet(passwordField.value, wallet.address));
-            confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.address);
+        if(!prompt){
+            
+           alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
+        }
+         await db.saveWallet(wallet);
+            
+
+        confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.address);
             window.router.navigate('/dashboard');
-        }
-        else{
-            alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
-        }
+
+
 
 
 

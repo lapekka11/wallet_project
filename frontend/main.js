@@ -1,6 +1,8 @@
 // frontend/main.js
 import { Router } from '/src/router.js';
 import { HomePage, CreateWalletPage, DashboardPage } from '/src/index.js';
+import {SecureStore} from '../storage_logic/SecureStore';
+
 
 const router = new Router();
 
@@ -16,7 +18,7 @@ const NotFoundPage = {
 router.route('/404', NotFoundPage);
 
 router.init();
-
+export const db = new SecureStore();
 // Hook CTA button (use querySelector for multi-class selector)
 const btn = document.querySelector('.btn.btn-primary.btn-large');
 if (btn) {

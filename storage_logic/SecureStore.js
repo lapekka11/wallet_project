@@ -1,12 +1,12 @@
 
 
-class SecureStore {
+export class SecureStore {
 
     constructor() {
     this.DB_NAME = 'crypto_wallet_store';
     this.DB_VERSION = 2;
     this.db = null;
-    this.initPromies = this.init();
+    this.initPromise = this.init();
     }
 
 
