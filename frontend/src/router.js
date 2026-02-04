@@ -84,8 +84,12 @@ export class Router {
         break;
       // ... other routes
       case '/import':
-            await import('/src/import.js').then(m => m.initImportPage && m.initImportPage());
-            break;
+        await import('/src/import.js').then(m => m.initImportPage && m.initImportPage());
+        break;
+      case '/settings':
+        await import('/src/settings.js').then(m => m.initSettingsPage && m.initSettingsPage());
+        break;
     }
+
   }
 }

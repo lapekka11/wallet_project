@@ -1,6 +1,8 @@
 import{ethers} from 'ethers';
 
 
+ export let wallet;
+ export let wallets;
 
  export async function initDashboard(){
      const balanceDisplay = document.getElementById('balanceDisplay');
@@ -18,7 +20,6 @@ import{ethers} from 'ethers';
         return;
     }
     
-    let wallets;
     try {
         wallets = await dbInstance.getAllWallets();
     } catch (err) {
@@ -27,7 +28,7 @@ import{ethers} from 'ethers';
         window.router.navigate('/create');
         return;
     }
-     const wallet = wallets[0];
+     wallet = wallets[0];
      console.log(wallet);
      console.log(wallets);
      if(!wallet){
@@ -40,7 +41,17 @@ import{ethers} from 'ethers';
      balanceDisplay.textContent = await provider.getBalance(wallet.address) + ' ETH';
      transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
  
- 
+    
+ }
+
+ export async function setWallet(wallet1){
+    try{
+        wallet = wallet1;
+    }
+    catch(e){
+        console.log(e.textContent);
+    }
+    
  }
 
 //export async function initDashboard(){

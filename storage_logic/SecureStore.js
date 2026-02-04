@@ -1,25 +1,29 @@
-
-
 export class SecureStore {
 
     constructor() {
-    this.DB_NAME = 'crypto_wallet_store';
-    this.DB_VERSION = 2;
-    this.db = null;
-    
+        // unified names
+        this.dbName = 'crypto_wallet_store';
+        this.dbVersion = 2;
+        this.db = null;
+        this.initPromise = null;
     }
 
-
-   init() {
-        if (this.db) return Promise.resolve(this.db);
-
-        return new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.version);
+    init() {
+        if (this.initPromise) return this.initPromise;
+        this.initPromise = new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;
                 if (!db.objectStoreNames.contains('wallets')) {
                     db.createObjectStore('wallets', { keyPath: 'address' });
+                }
+                if (!db.objectStoreNames.contains('transactions')) {
+                    const txStore = db.createObjectStore('transactions', { keyPath: 'id', autoIncrement: true });
+                    txStore.createIndex('address_timestamp', ['address', 'timestamp']);
+                }
+                if (!db.objectStoreNames.contains('preferences')) {
+                    db.createObjectStore('preferences', { keyPath: 'id' });
                 }
             };
 
@@ -35,6 +39,19 @@ export class SecureStore {
             request.onblocked = () => {
                 console.warn('IndexedDB open blocked');
             };
+        });
+
+        return this.initPromise;
+    }
+
+    async deleteWallet(address){
+       if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('wallets', 'readwrite');
+        const store = tx.objectStore('wallets');
+        return new Promise((resolve, reject) => {
+            const req = store.delete(address);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = (e) => reject(e.target.error);
         });
     }
 
@@ -138,20 +155,26 @@ export class SecureStore {
     });
   }
   
-  async clearDatabase() {
-    await this.initPromise;
-    
+ async clearDatabase() {
+    if (this.db) {
+      try { this.db.close(); } catch (e) { }
+      this.db = null;
+    }
     return new Promise((resolve, reject) => {
-      const request = indexedDB.deleteDatabase(this.DB_NAME);
-      
-      request.onsuccess = () => {
+      const req = indexedDB.deleteDatabase(this.dbName);
+      req.onsuccess = () => {
+        console.log(`Database ${this.dbName} deleted`);
+        this.initPromise = null;
         this.db = null;
         resolve();
       };
-      request.onerror = () => reject(request.error);
+      req.onerror = (e) => reject(e.target.error);
+      req.onblocked = () => {
+        console.warn('Deletion blocked — other tabs/connections open');
+        reject(new Error('Database deletion blocked. Close other tabs/connections.'));
+      };
     });
-
-    }
+  }
 
     async getWallet(address) {
         if (!this.db) throw new Error('DB not initialized');
@@ -163,8 +186,23 @@ export class SecureStore {
             req.onerror = (e) => reject(e.target.error);
         });
     }
+
+    async changePassword(address, newPassword) {
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('wallets', 'readwrite');
+        const store = tx.objectStore('wallets');
+        return new Promise((resolve, reject) => {
+            const req = store.get(address);
+            req.onsuccess = (e) => {
+                const rec = e.target.result;
+                if (!rec) return resolve(false);
+                rec.key = newPassword;
+                const putReq = store.put(rec);
+                putReq.onsuccess = () => resolve(true);
+                putReq.onerror = (err) => reject(err.target?.error || err);
+            };
+            req.onerror = (err) => reject(err.target?.error || err);
+        });
+    }
 }
-
-
-
 export default SecureStore;
