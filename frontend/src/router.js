@@ -1,5 +1,7 @@
 // Dynamic imports will be used for page-specific initialization
 
+import { initImportPage } from './import';
+
 export class Router {
   constructor() {
     this.routes = {};
@@ -81,6 +83,9 @@ export class Router {
         await import('/src/dashboard.js').then(m => m.initDashboard && m.initDashboard());
         break;
       // ... other routes
+      case '/import':
+            await import('/src/import.js').then(m => m.initImportPage && m.initImportPage());
+            break;
     }
   }
 }

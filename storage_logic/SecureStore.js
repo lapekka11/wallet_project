@@ -152,6 +152,19 @@ export class SecureStore {
     });
 
     }
+
+    async getWallet(address) {
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('wallets', 'readonly');
+        const store = tx.objectStore('wallets');
+        return new Promise((resolve, reject) => {
+            const req = store.get(address);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
 }
+
+
 
 export default SecureStore;

@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 
-import { deriveKey, encryptData, decryptData } from '../../storage_logic/EncryptionUtils.js';
+import { deriveKey, encryptData, decryptData ,evaluatePasswordStrength } from '../../storage_logic/EncryptionUtils.js';
 
 class Wallet {
     constructor(password,address){
@@ -20,14 +20,7 @@ export async function initWalletCreation(){
     const passwordMatchDiv = document.querySelector('.password-match');
     const createWalletForm = document.getElementById('createWalletForm');
 
-    function evaluatePasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
-        return strength;
-    }
+   
 
     passwordField.addEventListener('input', () => {
         const strength = evaluatePasswordStrength(passwordField.value);

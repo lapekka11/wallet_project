@@ -2,6 +2,7 @@
 import { Router } from '/src/router.js';
 import { HomePage, CreateWalletPage, DashboardPage } from '/src/index.js';
 import {SecureStore} from '../storage_logic/SecureStore';
+import { ImportPage } from './src';
 
 
 const router = new Router();
@@ -10,6 +11,7 @@ const router = new Router();
 router.route('/', HomePage);
 router.route('/create', CreateWalletPage);
 router.route('/dashboard', DashboardPage);
+router.route('/import' , ImportPage);
 
 // Simple 404 fallback
 const NotFoundPage = {
