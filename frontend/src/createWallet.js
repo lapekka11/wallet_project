@@ -1,5 +1,6 @@
 import {ethers} from 'ethers';
-import {db} from '../main.js';
+
+import { deriveKey, encryptData, decryptData } from '../../storage_logic/EncryptionUtils.js';
 
 class Wallet {
     constructor(password,address){
@@ -67,17 +68,31 @@ export async function initWalletCreation(){
             
            alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
         }
-         await db.saveWallet(wallet);
+        const encryptedData = await encryptData(wallet.privateKey, passwordField.value);
+        console.log('encrypt result', encryptedData);
+        // support either { encryptedData, key } or { ciphertext, iv, salt, key }
+
+        console.log("trying");
+        if(!window.db){
+            console.log("no DB :(");
+        }
+        console.log(window.db);
+        try{
+            console.log(encryptedData.ciphertext);
+            console.log(encryptedData.password);
+            await window.db.saveWallet(encryptedData, wallet.address, encryptedData.password);
+            console.log(await window.db.getAllWallets());
+        } catch (err) {
+            console.error('Failed saving wallet', err);
+            alert('Failed to save wallet. See console for details.');
+            return;
+        }
+         
+         
             
 
         confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.address);
             window.router.navigate('/dashboard');
-
-
-
-
-
-       
     });
 }
 

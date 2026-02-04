@@ -6,112 +6,59 @@ export class SecureStore {
     this.DB_NAME = 'crypto_wallet_store';
     this.DB_VERSION = 2;
     this.db = null;
-    this.initPromise = this.init();
+    
     }
 
 
-    async init() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open(this.DB_NAME, this.DB_VERSION);
+   init() {
+        if (this.db) return Promise.resolve(this.db);
 
-        request.onerror = (event) => {
-        console.error('RIP DB error:', event.target.errorCode);
-        reject(event.target.errorCode);
-        }
-        request.onsuccess = (event) => {
-        this.db = event.target.result;
-        resolve();
-        }
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            if (!db.objectStoreNames.contains('wallets')) {
-               const walletStore = db.createObjectStore('wallets', { keyPath: 'address'});
-               walletStore.createIndex('created_at', 'created_at', { unique: false });
-            }
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(this.dbName, this.version);
 
-        // Transactions store
-        if (!db.objectStoreNames.contains('transactions')) {
-          const store = db.createObjectStore('transactions', { 
-            keyPath: 'hash',
-            autoIncrement: false 
-          });
-          store.createIndex('from_address', 'from', { unique: false });
-          store.createIndex('to_address', 'to', { unique: false });
-          store.createIndex('timestamp', 'timestamp', { unique: false });
-          store.createIndex('address_timestamp', ['from', 'timestamp'], { unique: false });
-        }
-        
-        // Preferences store
-        if (!db.objectStoreNames.contains('preferences')) {
-          const store = db.createObjectStore('preferences', { keyPath: 'id' });
-        }
-        
-        // Tokens store (ERC-20 tokens)
-        if (!db.objectStoreNames.contains('tokens')) {
-          const store = db.createObjectStore('tokens', { 
-            keyPath: ['address', 'networkId'] 
-          });
-          store.createIndex('networkId', 'networkId', { unique: false });
-        }
-        
-        // Contact Address store
-        if (!db.objectStoreNames.contains('contacts')) {
-          const store = db.createObjectStore('contacts', { 
-            keyPath: 'id',
-            autoIncrement: true 
-          });
-          store.createIndex('address', 'address', { unique: true });
-        }
-      };
-    });
-  }
-  
-  async saveWallet(encryptedWallet) {
-    await this.initPromise;
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(['wallets'], 'readwrite');
-      const store = transaction.objectStore('wallets');
-      
-      const walletData = {
-        ...encryptedWallet,
-        address: encryptedWallet.address,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-      
-      const request = store.put(walletData);
-      
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
-  
-  async getWallet(address) {
-    await this.initPromise;
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(['wallets'], 'readonly');
-      const store = transaction.objectStore('wallets');
-      const request = store.get(address);
-      
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains('wallets')) {
+                    db.createObjectStore('wallets', { keyPath: 'address' });
+                }
+            };
+
+            request.onsuccess = (event) => {
+                this.db = event.target.result;
+                resolve(this.db);
+            };
+
+            request.onerror = (event) => {
+                reject(event.target.error);
+            };
+
+            request.onblocked = () => {
+                console.warn('IndexedDB open blocked');
+            };
+        });
+    }
+
+    async saveWallet(ciphertext, address, key) {
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('wallets', 'readwrite');
+        const store = tx.objectStore('wallets');
+        return new Promise((resolve, reject) => {
+            const req = store.add({ address, ciphertext, key });
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
   
   async getAllWallets() {
-    await this.initPromise;
-    
-    return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(['wallets'], 'readonly');
-      const store = transaction.objectStore('wallets');
-      const request = store.getAll();
-      
-      request.onsuccess = () => resolve(request.result);
-      request.onerror = () => reject(request.error);
-    });
-  }
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('wallets', 'readonly');
+        const store = tx.objectStore('wallets');
+        return new Promise((resolve, reject) => {
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
   
   async saveTransaction(txData) {
     await this.initPromise;

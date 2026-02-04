@@ -16,6 +16,9 @@ export const HomePage = {
         <a href="/import" data-route class="btn btn-secondary btn-large">
           Import Existing Wallet
         </a>
+        <a href="/dashboard" data-route class="btn btn-tertiary btn-large">
+          View Dashboard
+        </a>
       </div>
       
       <div class="info">

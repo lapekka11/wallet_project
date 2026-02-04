@@ -16,9 +16,11 @@ const NotFoundPage = {
     template: `<div style="padding:40px;text-align:center;"><h2>Page not found</h2><p>The page you requested does not exist.</p></div>`
 };
 router.route('/404', NotFoundPage);
-
+export let db = new SecureStore();
+db.init();
+window.db = db;
 router.init();
-export const db = new SecureStore();
+
 // Hook CTA button (use querySelector for multi-class selector)
 const btn = document.querySelector('.btn.btn-primary.btn-large');
 if (btn) {
