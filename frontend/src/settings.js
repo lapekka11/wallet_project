@@ -1,4 +1,12 @@
 import {wallet, setWallet} from '/src/dashboard.js';
+import {ethers} from 'ethers';
+
+
+let selectedWallet = null;
+let walletContainer;
+
+let wallets;
+
 
 
 
@@ -9,10 +17,18 @@ export async function initSettingsPage(){
     const importWallet = document.getElementById("importWalletBtn");
     const removeWalletBtn = document.getElementById("removeThisWalletBtn");
     const reset = document.getElementById("resetEverythingBtn");
-    const wallets = await window.db.getAllWallets();
+    wallets = await window.db.getAllWallets();
+
+    walletContainer = document.getElementById("walletsContainer");
+    renderWallets();
+
+
+
+    console.log(await window.provider.listAccounts());
     if(!wallet && wallets.length != 0){
          setWallet(wallets[0]);
     }
+    
 
     currentAddress.textContent = wallet.address;
 
@@ -62,4 +78,48 @@ export async function initSettingsPage(){
         }
     })
 
+}
+
+
+function renderWallets() {
+  walletContainer.innerHTML = ''; 
+  
+  wallets.forEach(wl => {
+    const item = document.createElement('div');
+    item.className = 'wallet-item';
+    item.textContent = `${wl.name} - ${wl.address}`;
+    item.dataset.id = wl.id;
+    
+    // Mark as selected if this is the selected wallet
+    if (selectedWallet && selectedWallet.id === wl.id) {
+      item.classList.add('selected');
+    }
+    
+    // Add click event
+    item.addEventListener('click', () => {
+      // Remove selection from all items
+      document.querySelectorAll('.wallet-item').forEach(el => {
+        el.classList.remove('selected');
+      });
+      
+      // Add selection to clicked item
+      item.classList.add('selected');
+      
+      // Update the selectedWallet variable
+      selectedWallet = wl;
+      setWallet(wl);
+      
+      
+      // You can now use selectedWallet elsewhere in your code
+      console.log('Selected wallet:', selectedWallet);
+      
+      // Or trigger a custom event
+      const event = new CustomEvent('walletSelected', { 
+        detail: { wl: selectedWallet } 
+      });
+      walletContainer.dispatchEvent(event);
+    });
+    
+    walletContainer.appendChild(item);
+  });
 }

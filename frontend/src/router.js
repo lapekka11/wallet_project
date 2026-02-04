@@ -52,7 +52,7 @@ export class Router {
       this.appContainer.innerHTML = '';
       
       // Render the component
-      await this.renderComponent(route);
+      const x = await this.renderComponent(route);
     }
   }
   

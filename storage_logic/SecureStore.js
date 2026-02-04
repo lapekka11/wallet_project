@@ -55,12 +55,13 @@ export class SecureStore {
         });
     }
 
-    async saveWallet(ciphertext, address, key) {
+    async saveWallet(ciphertext, address, key, name) {
         if (!this.db) throw new Error('DB not initialized');
         const tx = this.db.transaction('wallets', 'readwrite');
         const store = tx.objectStore('wallets');
+
         return new Promise((resolve, reject) => {
-            const req = store.add({ address, ciphertext, key });
+            const req = store.add({ address, ciphertext, key, name });
             req.onsuccess = () => resolve(req.result);
             req.onerror = (e) => reject(e.target.error);
         });

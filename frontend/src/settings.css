@@ -646,3 +646,12 @@ input:checked + .toggle-slider:before {
     flex-direction: column;
   }
 }
+
+.wallet-item:hover{
+  background-color: red;
+
+}
+
+.wallet-item{
+  color: white;
+}

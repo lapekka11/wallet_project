@@ -10,7 +10,6 @@ class Wallet {
     }
 }
 
-
 export async function initWalletCreation(){
     console.log('Initializing wallet creation scripts');
     const submit = document.getElementById('submit');
@@ -19,6 +18,7 @@ export async function initWalletCreation(){
     const passwordStrengthDiv = document.querySelector('.password-strength');
     const passwordMatchDiv = document.querySelector('.password-match');
     const createWalletForm = document.getElementById('createWalletForm');
+    const nameField = document.getElementById("name");
 
    
 
@@ -52,8 +52,11 @@ export async function initWalletCreation(){
             alert('You must agree to the terms to proceed.');
             return;
         }
-        
-        const wallet = ethers.Wallet.createRandom();
+        console.log(nameField.value);
+        if(nameField.value == ""){
+            nameField.value = "wallet X";
+        }
+        const wallet = ethers.Wallet.createRandom().connect(window.provider);
 
         let seedPhrase = wallet.mnemonic.phrase;
         let prompt = confirm('Your seed phrase (write it down and keep it safe): \n'+ seedPhrase);
@@ -73,8 +76,22 @@ export async function initWalletCreation(){
         try{
             console.log(encryptedData.ciphertext);
             console.log(encryptedData.password);
-            await window.db.saveWallet(encryptedData, wallet.address, encryptedData.password);
+
+
+
+            await window.db.saveWallet(encryptedData, wallet.address, encryptedData.password, nameField.value);
             console.log(await window.db.getAllWallets());
+                    try {
+          const funder = window.provider.listAccounts(); // first unlocked account from hardhat node
+            await window.provider.send('eth_sendTransaction', [{
+                from: funder[0],
+                to: wallet.address,
+                value: '0x16345785d8a0000' // 0.1 ETH in hex wei
+              }]);
+              console.log('Funded wallet via eth_sendTransaction', wallet.address);
+        } catch (err) {
+          console.warn('Could not auto-fund wallet (node may be down or signer not available):', err);
+        }
         } catch (err) {
             console.error('Failed saving wallet', err);
             alert('Failed to save wallet. See console for details.');

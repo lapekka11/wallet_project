@@ -1,7 +1,7 @@
 import{ethers} from 'ethers';
 
 
- export let wallet;
+ export let wallet = null;
  export let wallets;
 
  export async function initDashboard(){
@@ -10,7 +10,7 @@ import{ethers} from 'ethers';
      const transactionsList = document.getElementById('transactionsList');
      const currentAddress = document.getElementById('currentAddress');
      const disconnectBtn = document.getElementById('disconnectBtn');
-     const provider = ethers.getDefaultProvider();
+     const provider = window.provider;
     
     const dbInstance = window.db;
     if (!dbInstance || !dbInstance.db) {
@@ -28,7 +28,9 @@ import{ethers} from 'ethers';
         window.router.navigate('/create');
         return;
     }
-     wallet = wallets[0];
+     if (wallet === null){
+        wallet = wallets[0];
+     }
      console.log(wallet);
      console.log(wallets);
      if(!wallet){
@@ -38,7 +40,7 @@ import{ethers} from 'ethers';
      }
  
      currentAddress.textContent = `Address: ${wallet.address}`;
-     balanceDisplay.textContent = await provider.getBalance(wallet.address) + ' ETH';
+     balanceDisplay.textContent = ethers.formatEther( await provider.getBalance(wallet.address)) + ' ETH';
      transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
  
     
@@ -47,6 +49,7 @@ import{ethers} from 'ethers';
  export async function setWallet(wallet1){
     try{
         wallet = wallet1;
+        console.log("killa");
     }
     catch(e){
         console.log(e.textContent);

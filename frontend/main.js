@@ -1,8 +1,9 @@
 // frontend/main.js
 import { Router } from '/src/router.js';
-import { HomePage, CreateWalletPage, DashboardPage, SettingsPage } from '/src/index.js';
+import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage } from '/src/index.js';
 import {SecureStore} from '../storage_logic/SecureStore';
 import { ImportPage } from './src';
+import{ethers} from 'ethers';
 
 
 const router = new Router();
@@ -13,6 +14,7 @@ router.route('/create', CreateWalletPage);
 router.route('/dashboard', DashboardPage);
 router.route('/import' , ImportPage);
 router.route('/settings', SettingsPage);
+router.route('/send', SendingPage);
 
 // Simple 404 fallback
 const NotFoundPage = {
@@ -23,7 +25,7 @@ export let db = new SecureStore();
 db.init();
 window.db = db;
 router.init();
-
+window.provider =  new ethers.JsonRpcProvider("http://127.0.0.1:9545");
 // Hook CTA button (use querySelector for multi-class selector)
 const btn = document.querySelector('.btn.btn-primary.btn-large');
 if (btn) {
