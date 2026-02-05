@@ -3,7 +3,7 @@
 export const HomePage = {
   template: `
   <head>
-  <link rel="stylesheet" href="/src/home.css">
+  <link rel="stylesheet" href="/src/CSS/home.css">
   </head>
     <div class="home-page">
       <header>
@@ -44,7 +44,7 @@ export const HomePage = {
 export const CreateWalletPage = {
   template: `
   <head>
-  <link rel="stylesheet" href="/src/walletCreation.css">
+  <link rel="stylesheet" href="/src/CSS/walletCreation.css">
   </head>
     <div class="create-wallet-page">
       <header>
@@ -104,14 +104,14 @@ export const CreateWalletPage = {
   
   init: async () => {
     console.log('Create wallet page loaded');
-    await import('/src/createWallet.js').then(module => module.initWalletCreation && module.initWalletCreation());
+    await import('/src/JS/createWallet.js').then(module => module.initWalletCreation && module.initWalletCreation());
   }
 };
 
 export const DashboardPage = {
   template: `
   <head>
-  <link rel="stylesheet" href="/src/dashboard.css">
+  <link rel="stylesheet" href="/src/CSS/dashboard.css">
   </head>
     <div class="dashboard-page">
       <nav class="wallet-nav">
@@ -159,7 +159,7 @@ export const DashboardPage = {
 export const SettingsPage ={
     template:`
       <head>
-  <link rel="stylesheet" href="/src/settings.css">
+  <link rel="stylesheet" href="/src/CSS/settings.css">
   </head>
      <div class="settings-page"> 
   <nav class="settings-nav">
@@ -554,7 +554,7 @@ export const SettingsPage ={
 export const ImportPage = {
   template: `
   <head>
-   <link rel="stylesheet" href="/src/import.css">
+   <link rel="stylesheet" href="/src/CSS/import.css">
    </head>
 <div class="import-page">
   <nav class="page-nav">
@@ -797,7 +797,7 @@ export const ImportPage = {
 export const SendingPage = {
   template: `
     <head>
-   <link rel="stylesheet" href="/src/sending.css">
+   <link rel="stylesheet" href="/src/CSS/sending.css">
    </head>
   <div class="send-page">
   <nav class="send-nav">

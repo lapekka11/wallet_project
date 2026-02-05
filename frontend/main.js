@@ -1,8 +1,7 @@
 // frontend/main.js
-import { Router } from '/src/router.js';
-import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage } from '/src/index.js';
+import { Router } from '/src/JS/router.js';
+import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, ImportPage } from '/src/JS/index.js';
 import {SecureStore} from '../storage_logic/SecureStore';
-import { ImportPage } from './src';
 import{ethers} from 'ethers';
 
 

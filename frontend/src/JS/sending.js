@@ -1,5 +1,5 @@
 import {ethers} from 'ethers'
-import {decryptData} from '../../storage_logic/EncryptionUtils';
+import {decryptData} from '../../../storage_logic/EncryptionUtils';
 
 let from; 
 let to;

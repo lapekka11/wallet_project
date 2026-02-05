@@ -1,6 +1,6 @@
 import {ethers} from 'ethers';
 
-import { deriveKey, encryptData, decryptData ,evaluatePasswordStrength } from '../../storage_logic/EncryptionUtils.js';
+import { deriveKey, encryptData, decryptData ,evaluatePasswordStrength } from '../../../storage_logic/EncryptionUtils';
 
 class Wallet {
     constructor(password,address){

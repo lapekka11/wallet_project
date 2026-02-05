@@ -1,5 +1,5 @@
 import {ethers, Wallet} from 'ethers'
-import { evaluatePasswordStrength, encryptData,  } from '../../storage_logic/EncryptionUtils';
+import { evaluatePasswordStrength, encryptData,  } from '../../../storage_logic/EncryptionUtils';
 
 
 

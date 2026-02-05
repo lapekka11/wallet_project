@@ -1,4 +1,4 @@
-import {wallet, setWallet} from '/src/dashboard.js';
+import {wallet, setWallet} from '/src/JS/dashboard.js';
 import {ethers} from 'ethers';
 
 

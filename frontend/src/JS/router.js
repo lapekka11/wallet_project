@@ -1,6 +1,5 @@
 // Dynamic imports will be used for page-specific initialization
 
-import { initImportPage } from './import';
 
 export class Router {
   constructor() {
@@ -77,20 +76,20 @@ export class Router {
     // Dynamically import page-specific JS based on current route
     switch(this.currentPath) {
       case '/create':
-        await import('/src/createWallet.js').then(m => m.initWalletCreation && m.initWalletCreation());
+        await import('/src/JS/createWallet.js').then(m => m.initWalletCreation && m.initWalletCreation());
         break;
       case '/dashboard':
-        await import('/src/dashboard.js').then(m => m.initDashboard && m.initDashboard());
+        await import('/src/JS/dashboard.js').then(m => m.initDashboard && m.initDashboard());
         break;
       // ... other routes
       case '/import':
-        await import('/src/import.js').then(m => m.initImportPage && m.initImportPage());
+        await import('/src/JS/import.js').then(m => m.initImportPage && m.initImportPage());
         break;
       case '/settings':
-        await import('/src/settings.js').then(m => m.initSettingsPage && m.initSettingsPage());
+        await import('/src/JS/settings.js').then(m => m.initSettingsPage && m.initSettingsPage());
         break;
       case '/send':
-        await import('/src/sending.js').then(m => m.initSendingPage && m.initSendingPage());
+        await import('/src/JS/sending.js').then(m => m.initSendingPage && m.initSendingPage());
         break;
     }
 
