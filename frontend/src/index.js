@@ -115,7 +115,6 @@ export const DashboardPage = {
           <a href="/" data-route class="nav-link active">Back</a>
           <a href="/dashboard" data-route class="nav-link active">💰 Balance</a>
           <a href="/send" data-route class="nav-link">📤 Send</a>
-          <a href="/receive" data-route class="nav-link">📥 Receive</a>
           <a href="/settings" data-route class="nav-link">⚙️ Settings</a>
         </div>
       </nav>
@@ -228,7 +227,6 @@ export const SettingsPage ={
             <p>View your seed phrase or export backup</p>
           </div>
           <div class="security-actions">
-            <button id="viewSeedBtn" class="btn btn-secondary">View Seed Phrase</button>
             <button id="exportBackupBtn" class="btn btn-secondary">Export Backup</button>
           </div>
         </div>
@@ -256,10 +254,7 @@ export const SettingsPage ={
             <select id="networkSelect" class="form-select">
               <option value="ethereum">Ethereum Mainnet</option>
               <option value="sepolia" selected>Sepolia Testnet</option>
-              <option value="goerli">Goerli Testnet</option>
-              <option value="polygon">Polygon Mainnet</option>
-              <option value="arbitrum">Arbitrum One</option>
-              <option value="optimism">Optimism</option>
+              <option value="goerli">Hardhat Testnet</option>
             </select>
           </div>
         </div>
@@ -321,10 +316,6 @@ export const SettingsPage ={
             <select id="languageSelect" class="form-select">
               <option value="en" selected>English</option>
               <option value="es">Español</option>
-              <option value="fr">Français</option>
-              <option value="de">Deutsch</option>
-              <option value="zh">中文</option>
-              <option value="ja">日本語</option>
             </select>
           </div>
         </div>
@@ -574,7 +565,6 @@ export const ImportPage = {
     <!-- Toggle between Import and Unlock -->
     <div class="mode-toggle">
       <button id="toggleImport" class="mode-btn active">📤 Import Wallet</button>
-      <button id="toggleUnlock" class="mode-btn">🔓 Unlock Wallet</button>
     </div>
     
     <!-- Import Wallet Section (Seed Phrase) -->

@@ -112,7 +112,7 @@ async function sendTransaction(from, to, amountElement) {
 
 
  function renderWallets(fromSelector, selectedBalance, availableBalance, remainingBalance, amount) {
-  fromSelector.innerHTML='';
+  fromSelector.innerHTML='<option value="" disabled selected>Select Wallet</option>';
   wallets.forEach(wl => {
     const item = document.createElement('option');
     item.className = 'wallet-item';
