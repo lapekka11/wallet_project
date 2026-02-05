@@ -25,7 +25,7 @@ export async function initSendingPage(){
     });
 
     sendBtn.addEventListener('click' , async(e) => {
-            e.preventDefault(); // Add this line
+            e.preventDefault();
             console.log('Send button clicked');
 
         const amountValue = parseFloat(amount.value);
