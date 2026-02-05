@@ -10,7 +10,9 @@ import{ethers} from 'ethers';
      const transactionsList = document.getElementById('transactionsList');
      const currentAddress = document.getElementById('currentAddress');
      const disconnectBtn = document.getElementById('disconnectBtn');
+     const sendBtn = document.getElementById('sendBtn');
      const provider = window.provider;
+     
     
     const dbInstance = window.db;
     if (!dbInstance || !dbInstance.db) {
@@ -38,10 +40,18 @@ import{ethers} from 'ethers';
          window.router.navigate('/create');
          return;
      }
+
  
      currentAddress.textContent = `Address: ${wallet.address}`;
      balanceDisplay.textContent = ethers.formatEther( await provider.getBalance(wallet.address)) + ' ETH';
      transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
+
+     sendBtn.addEventListener('click', async(e) => {
+        
+        window.router.navigate('/send');
+     });
+
+
  
     
  }

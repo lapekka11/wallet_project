@@ -2,9 +2,12 @@
 
 export const HomePage = {
   template: `
+  <head>
+  <link rel="stylesheet" href="/src/home.css">
+  </head>
     <div class="home-page">
       <header>
-        <h1>🔐 My Crypto Wallet</h1>
+        <h1>MetaClone</h1>
         <p>Secure, non-custodial Ethereum wallet</p>
       </header>
       
@@ -22,7 +25,7 @@ export const HomePage = {
       </div>
       
       <div class="info">
-        <h3>⚠️ Security First</h3>
+        <h3>Security First</h3>
         <ul>
           <li>Private keys never leave your device</li>
           <li>No servers - everything runs locally</li>
@@ -40,6 +43,9 @@ export const HomePage = {
 
 export const CreateWalletPage = {
   template: `
+  <head>
+  <link rel="stylesheet" href="/src/walletCreation.css">
+  </head>
     <div class="create-wallet-page">
       <header>
         <a href="/" data-route class="back-link">← Back</a>
@@ -104,6 +110,9 @@ export const CreateWalletPage = {
 
 export const DashboardPage = {
   template: `
+  <head>
+  <link rel="stylesheet" href="/src/dashboard.css">
+  </head>
     <div class="dashboard-page">
       <nav class="wallet-nav">
         <div class="wallet-info">
@@ -113,9 +122,7 @@ export const DashboardPage = {
         
         <div class="nav-links">
           <a href="/" data-route class="nav-link active">Back</a>
-          <a href="/dashboard" data-route class="nav-link active">💰 Balance</a>
-          <a href="/send" data-route class="nav-link">📤 Send</a>
-          <a href="/settings" data-route class="nav-link">⚙️ Settings</a>
+          <a href="/settings" data-route class="nav-link">Settings</a>
         </div>
       </nav>
       
@@ -128,7 +135,6 @@ export const DashboardPage = {
         
         <div class="actions-row">
           <button id="sendBtn" class="action-btn">Send</button>
-          <button id="receiveBtn" class="action-btn">Receive</button>
           <button id="swapBtn" class="action-btn">Swap</button>
           <button id="buyBtn" class="action-btn">Buy</button>
         </div>
@@ -160,18 +166,17 @@ export const SettingsPage ={
     <div class="nav-back">
       <a href="/dashboard" data-route class="back-link">← Back to Dashboard</a>
     </div>
-    <h1 class="page-title">⚙️ Settings</h1>
+    <h1 class="page-title">Settings</h1>
   </nav>
   
   <div class="settings-container">
     <!-- Profile Section -->
     <div class="settings-section">
-      <h2 class="section-title">👤 Profile</h2>
+      <h2 class="section-title">Profile</h2>
       <div class="settings-card">
         <div class="profile-info">
           <div class="profile-avatar">
             <div class="avatar-icon">👤</div>
-            <button class="change-avatar-btn">Change</button>
           </div>
           <div class="profile-details">
             <h3 id="profileName">My Wallet</h3>
@@ -180,21 +185,19 @@ export const SettingsPage ={
               <button id="copyAddressBtn" class="btn-small">📋 Copy</button>
             </div>
             <div class="profile-meta">
-              <span class="meta-item">🔗 Network: <span id="currentNetwork">Sepolia</span></span>
+              <span class="meta-item">Network: <span id="currentNetwork">Sepolia</span></span>
             </div>
           </div>
         </div>
         
         <div class="profile-actions">
-          <button id="editProfileBtn" class="btn btn-secondary">Edit Profile</button>
-          <button id="exportProfileBtn" class="btn btn-secondary">Export Profile</button>
         </div>
       </div>
     </div>
     
     <!-- Security Section -->
     <div class="settings-section">
-      <h2 class="section-title">🔒 Security</h2>
+      <h2 class="section-title">Security</h2>
       <div class="settings-card">
         <div class="security-item">
           <div class="security-info">
@@ -243,7 +246,7 @@ export const SettingsPage ={
     
     <!-- Network & Preferences -->
     <div class="settings-section">
-      <h2 class="section-title">🌐 Network & Preferences</h2>
+      <h2 class="section-title">Network & Preferences</h2>
       <div class="settings-card">
         <div class="preference-item">
           <div class="preference-info">
@@ -324,7 +327,7 @@ export const SettingsPage ={
     
     <!-- Wallet Management -->
     <div class="settings-section">
-      <h2 class="section-title">👛 Wallet Management</h2>
+      <h2 class="section-title">Wallet Management</h2>
       <div class="settings-card">
         <div class="wallet-management">
           <div class="wallets-list">
@@ -344,16 +347,16 @@ export const SettingsPage ={
         </div>
         
         <div class="wallet-tools">
-          <button id="addressBookBtn" class="btn btn-secondary">📒 Address Book</button>
-          <button id="tokenManagementBtn" class="btn btn-secondary">💰 Manage Tokens</button>
-          <button id="connectedSitesBtn" class="btn btn-secondary">🔗 Connected Sites</button>
+          <button id="addressBookBtn" class="btn btn-secondary">Address Book</button>
+          <button id="tokenManagementBtn" class="btn btn-secondary">Manage Tokens</button>
+          <button id="connectedSitesBtn" class="btn btn-secondary">Connected Sites</button>
         </div>
       </div>
     </div>
     
     <!-- Advanced & Developer -->
     <div class="settings-section">
-      <h2 class="section-title">🛠️ Advanced</h2>
+      <h2 class="section-title">Advanced</h2>
       <div class="settings-card">
         <div class="advanced-item">
           <div class="advanced-info">
