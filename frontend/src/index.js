@@ -1103,7 +1103,7 @@ export const SendingPage = {
           <button type="button" id="previewBtn" class="btn btn-secondary">
             👁️ Preview
           </button>
-          <button type="submit" id="sendBtn" class="btn btn-primary" disabled>
+          <button type="submit" id="sendBtn" class="btn btn-primary" >
             Send Transaction
           </button>
         </div>

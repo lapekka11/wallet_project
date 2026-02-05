@@ -89,6 +89,9 @@ export class Router {
       case '/settings':
         await import('/src/settings.js').then(m => m.initSettingsPage && m.initSettingsPage());
         break;
+      case '/send':
+        await import('/src/sending.js').then(m => m.initSendingPage && m.initSendingPage());
+        break;
     }
 
   }
