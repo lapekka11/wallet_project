@@ -147,6 +147,29 @@ export const DashboardPage = {
         </div>
       </main>
     </div>
+
+    <!-- Lock Screen Overlay -->
+<div id="lock-overlay" class="lock-overlay" style="display: none;">
+  <div class="lock-modal">
+    <h2>🔒 Wallet Locked</h2>
+    <p>Enter your password or private key to unlock.</p>
+
+    <form class="lock-form">
+      <div class="form-group">
+        <label for="unlockPassword">Password</label>
+        <input
+          type="password"
+          id="unlockPassword"
+          placeholder="Enter your password"
+        />
+      </div>
+      <button id="unlockWallet" class="btn btn-primary btn-large">
+        Unlock Wallet
+      </button>
+    </form>
+  </div>
+</div>
+
   `,
   
   init: async () => {
@@ -542,6 +565,30 @@ export const SettingsPage ={
       </div>
     </div>
   </div>
+</div>
+
+    <!-- Lock Screen Overlay -->
+<div id="lock-overlay" class="lock-overlay" style="display: none;">
+  <div class="lock-modal">
+    <h2>🔒 Wallet Locked</h2>
+    <p>Enter your password or private key to unlock.</p>
+
+    <form class="lock-form">
+      <div class="form-group">
+        <label for="unlockPassword">Password</label>
+        <input
+          type="password"
+          id="unlockPassword"
+          placeholder="Enter your password"
+        />
+      </div>
+      </div>
+
+      <button id="unlockWallet" class="btn btn-primary btn-large">
+        Unlock Wallet
+      </button>
+    </form>
+  </div>
 </div>`,
  init: async () => {
     console.log('SettingsPage loaded');
@@ -567,7 +614,8 @@ export const ImportPage = {
   <div class="import-container">
     <!-- Toggle between Import and Unlock -->
     <div class="mode-toggle">
-      <button id="toggleImport" class="mode-btn active">📤 Import Wallet</button>
+      <button id="toggleSeedPhrase" class="mode-btn active">Import Seed Phrase</button>
+      <button id="togglePK" class="mode-btn">Import Private Key</button>
     </div>
     
     <!-- Import Wallet Section (Seed Phrase) -->
@@ -1089,6 +1137,43 @@ export const SendingPage = {
           </div>
         </div>
       </div>
+
+      <!-- Inline Transaction Preview -->
+<div id="inlinePreview" class="inline-preview" style="display: none;">
+  <h3 class="preview-title">👁️ Transaction Preview</h3>
+
+  <div class="preview-grid">
+    <div class="preview-item">
+      <span class="preview-label">From</span>
+      <span class="preview-value monospace" id="inlineFrom"></span>
+    </div>
+
+    <div class="preview-item">
+      <span class="preview-label">To</span>
+      <span class="preview-value monospace" id="inlineTo"></span>
+    </div>
+
+    <div class="preview-item">
+      <span class="preview-label">Amount</span>
+      <span class="preview-value" id="inlineAmount"></span>
+    </div>
+
+    <div class="preview-item">
+      <span class="preview-label">Network Fee</span>
+      <span class="preview-value" id="inlineFee"></span>
+    </div>
+
+    <div class="preview-item total">
+      <span class="preview-label">Total Cost</span>
+      <span class="preview-value" id="inlineTotal"></span>
+    </div>
+  </div>
+
+  <div class="preview-warning-inline">
+    ⚠️ Review carefully — transactions cannot be reversed.
+  </div>
+</div>
+
       
       <!-- Submit Section -->
       <div class="submit-section">

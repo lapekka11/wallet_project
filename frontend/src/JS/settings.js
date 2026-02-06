@@ -6,18 +6,23 @@ let selectedWallet = null;
 let walletContainer;
 
 let wallets;
-
+let currentAddress;
 
 
 
 export async function initSettingsPage(){
-    const currentAddress = document.getElementById("currentWalletAddress");
+     currentAddress = document.getElementById("currentWalletAddress");
     const changePW = document.getElementById("changePasswordBtn");
     const addWallet = document.getElementById("addWalletBtn");
     const importWallet = document.getElementById("importWalletBtn");
     const removeWalletBtn = document.getElementById("removeThisWalletBtn");
     const reset = document.getElementById("resetEverythingBtn");
-    wallets = await window.db.getAllWallets();
+    const lockWallet = document.getElementById("lockWalletBtn");
+    wallets = window.sUtils.wallets || await window.sUtils.getAllWallets();
+    const unlock = document.getElementById("unlockWallet");
+    const lockScreen = document.getElementById("lock-overlay");
+    const unlockPassword = document.getElementById("unlockPassword");
+
 
     walletContainer = document.getElementById("walletsContainer");
     renderWallets();
@@ -76,7 +81,49 @@ export async function initSettingsPage(){
         else{
             alert("Wrong password Loser.");
         }
-    })
+    });
+  let locked = false;
+ lockWallet.addEventListener('click', async(e) => {
+            e.preventDefault();
+            console.log("nia");
+            lockScreen.style.display = "flex";
+            locked = true;
+
+    });
+
+    unlock.addEventListener('click' , async(e) => {
+       e.preventDefault();
+        if(locked){
+            if(unlockPassword.value === window.sUtils.currWallet.key){
+                lockScreen.style.display = "none";
+            }     
+            else{
+                alert("incorrect password");
+            }       
+        } 
+    });
+
+
+  
+    disconnectBtn.addEventListener('click', async(e) => {
+            e.preventDefault();
+            console.log("nia");
+            lockScreen.style.display = "flex";
+
+
+    });
+
+    unlock.addEventListener('click' , async(e) => {
+        e.preventDefault();
+        if(locked){
+            if(unlockPassword.value === window.sUtils.currWallet.key){
+                lockScreen.style.display = "none";
+            }     
+            else{
+                alert("incorrect password");
+            }       
+        } 
+    });
 
 }
 
@@ -107,7 +154,8 @@ function renderWallets() {
       
       // Update the selectedWallet variable
       selectedWallet = wl;
-      setWallet(wl);
+      window.sUtils.updateCurrWallet(selectedWallet);
+      currentAddress.textContent = selectedWallet.address;
       
       
       // You can now use selectedWallet elsewhere in your code

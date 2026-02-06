@@ -1,8 +1,10 @@
 import{ethers} from 'ethers';
 
 
+
  export let wallet = null;
  export let wallets;
+
 
  export async function initDashboard(){
      const balanceDisplay = document.getElementById('balanceDisplay');
@@ -12,27 +14,29 @@ import{ethers} from 'ethers';
      const disconnectBtn = document.getElementById('disconnectBtn');
      const sendBtn = document.getElementById('sendBtn');
      const provider = window.provider;
+     const lockScreen = document.getElementById("lock-overlay");
+     const unlock = document.getElementById("unlockWallet");
+     const unlockPassword = document.getElementById("unlockPassword");
      
     
-    const dbInstance = window.db;
+    const dbInstance = window.sUtils;
+    console.log(dbInstance.db);
     if (!dbInstance || !dbInstance.db) {
         console.error('DB not initialized in dashboard');
         alert('Storage not ready — reload the app.');
-        window.router.navigate('/create');
+        window.router.navigate('/');
         return;
     }
     
     try {
-        wallets = await dbInstance.getAllWallets();
+        wallets = dbInstance.wallets || await dbInstance.getAllWallets();
     } catch (err) {
         console.error('Error fetching wallets', err);
         alert('Failed to load wallets. See console for details.');
         window.router.navigate('/create');
         return;
     }
-     if (wallet === null){
-        wallet = wallets[0];
-     }
+     wallet = dbInstance.currWallet;
      console.log(wallet);
      console.log(wallets);
      if(!wallet){
@@ -43,17 +47,61 @@ import{ethers} from 'ethers';
 
  
      currentAddress.textContent = `Address: ${wallet.address}`;
+     console.log(wallet);
      balanceDisplay.textContent = ethers.formatEther( await provider.getBalance(wallet.address)) + ' ETH';
-     transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
+     const transactions = await window.sUtils.updateRecentTransactions(wallet) || [];
+     console.log(transactions);
 
+transactionsList.innerHTML = ''; // clear existing
+
+if (!transactions.length) {
+  const empty = document.createElement('div');
+  empty.textContent = 'No transactions yet';
+  empty.style.color = '#9ca3af';
+  empty.style.textAlign = 'center';
+  empty.style.padding = '12px';
+  transactionsList.appendChild(empty);
+} else {
+  transactions.forEach(tx => {
+    const row = document.createElement('div');
+
+    row.innerHTML = `
+      <span>${tx.type || 'Transfer'}</span>
+      <span>${tx.amount || '0.00'} ETH</span>
+      <span>${tx.date || ''}</span>
+    `;
+
+    transactionsList.appendChild(row);
+  });
+}
      sendBtn.addEventListener('click', async(e) => {
         
         window.router.navigate('/send');
      });
 
 
- 
     
+    let locked = false;
+    disconnectBtn.addEventListener('click', async(e) => {
+            e.preventDefault();
+            console.log("nia");
+            lockScreen.style.display = "flex";
+            locked = true;
+
+
+    });
+
+    unlock.addEventListener('click' , async(e) => {
+        e.preventDefault();
+        if(locked){
+            if(unlockPassword.value === window.sUtils.currWallet.key){
+                lockScreen.style.display = "none";
+            }     
+            else{
+                alert("incorrect password");
+            }       
+        } 
+    });
  }
 
  export async function setWallet(wallet1){
@@ -88,7 +136,5 @@ import{ethers} from 'ethers';
 //    currentAddress.textContent = `Address: ${wallet.address}`;
 //    balanceDisplay.textContent = await provider.getBalance(wallet.address) + ' ETH';
 //    transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
-//
-//
 //
 //}

@@ -184,3 +184,95 @@ body {
 .transactions-list > div span {
   color: #9ca3af;
 }
+
+/* =======================
+   Lock Screen Overlay
+   ======================= */
+
+.lock-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Lock modal */
+.lock-modal {
+  width: 100%;
+  max-width: 380px;
+  background: linear-gradient(145deg, #0f172a, #020617);
+  border: 1px solid #1e293b;
+  border-radius: 20px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+  text-align: center;
+}
+
+/* Headings */
+.lock-modal h2 {
+  margin-bottom: 8px;
+  font-size: 1.4rem;
+}
+
+.lock-modal p {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin-bottom: 20px;
+}
+
+/* Form */
+.lock-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.lock-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.lock-form label {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.lock-form input {
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  color: #e5e7eb;
+  outline: none;
+  transition: border 0.15s ease, box-shadow 0.15s ease;
+}
+
+.lock-form input::placeholder {
+  color: #64748b;
+}
+
+.lock-form input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.4);
+}
+
+/* Divider */
+.divider {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 4px 0;
+}
+
+/* Button (reuses your existing styles) */
+.lock-form .btn-primary {
+  margin-top: 6px;
+}
+

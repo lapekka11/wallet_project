@@ -69,18 +69,21 @@ export async function initWalletCreation(){
         // support either { encryptedData, key } or { ciphertext, iv, salt, key }
 
         console.log("trying");
-        if(!window.db){
+        if(!window.sUtils){
             console.log("no DB :(");
         }
-        console.log(window.db);
+        console.log(window.sUtils);
         try{
             console.log(encryptedData.ciphertext);
             console.log(encryptedData.password);
 
 
 
-            await window.db.saveWallet(encryptedData, wallet.address, encryptedData.password, nameField.value);
-            console.log(await window.db.getAllWallets());
+            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedData.password, nameField.value);
+            console.log(window.sUtils);
+           const wallets =  await window.sUtils.updateWallets();
+           const currWallet = await window.sUtils.updateCurrWallet(wallet);
+           console.log(wallets);
                     try {
           const funder = window.provider.listAccounts(); // first unlocked account from hardhat node
             await window.provider.send('eth_sendTransaction', [{

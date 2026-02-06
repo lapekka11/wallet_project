@@ -4,7 +4,7 @@ import {decryptData} from '../../../storage_logic/EncryptionUtils';
 let from; 
 let to;
 let wallets;
-
+let amountValue;
 export async function initSendingPage(){
     const fromSelector = document.getElementById("fromAccount");
     const selectedBalance = document.getElementById("selectedBalance");
@@ -17,7 +17,7 @@ export async function initSendingPage(){
     const remainingBalance = document.getElementById("remainingBalance");
     const sendBtn = document.getElementById("sendBtn");
     
-    wallets = await window.db.getAllWallets();
+    wallets = window.sUtils.allWallets;
     renderWallets(fromSelector, selectedBalance, availableBalance, remainingBalance, amount);
 
     toAdress.addEventListener('input', async(e) => {
@@ -28,7 +28,7 @@ export async function initSendingPage(){
             e.preventDefault();
             console.log('Send button clicked');
 
-        const amountValue = parseFloat(amount.value);
+         amountValue = parseFloat(amount.value);
         console.log('Amount value:', amountValue, 'From:', from, 'To:', to);
                 const availableValue = parseFloat(availableBalance.textContent);
 
@@ -48,7 +48,7 @@ export async function initSendingPage(){
         else{
             try {
             const tx = await sendTransaction(from, to, amount);
-            const save = window.db.saveTransaction(tx);
+            const save = window.sUtils.saveTransaction(tx,from.address,to);
             console.log(tx); 
             alert('Transaction sent successfully!');
          } catch(err) {
@@ -58,6 +58,17 @@ export async function initSendingPage(){
         }
        
     });
+
+    document.getElementById("previewBtn").addEventListener("click", () => {
+  document.getElementById("inlineFrom").textContent = from.address;
+  document.getElementById("inlineTo").textContent = to;
+  document.getElementById("inlineAmount").textContent = `${amountValue} ${currency}`;
+  document.getElementById("inlineFee").textContent = "feeEstimate";
+  document.getElementById("inlineTotal").textContent = "totalCost";
+
+  document.getElementById("inlinePreview").style.display = "flex";
+});
+
 
 
 

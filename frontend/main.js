@@ -3,6 +3,7 @@ import { Router } from '/src/JS/router.js';
 import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, ImportPage } from '/src/JS/index.js';
 import {SecureStore} from '../storage_logic/SecureStore';
 import{ethers} from 'ethers';
+import { StorageUtils } from '../storage_logic/StorageUtile';
 
 
 const router = new Router();
@@ -20,9 +21,14 @@ const NotFoundPage = {
     template: `<div style="padding:40px;text-align:center;"><h2>Page not found</h2><p>The page you requested does not exist.</p></div>`
 };
 router.route('/404', NotFoundPage);
-export let db = new SecureStore();
-db.init();
-window.db = db;
+export let sUtils =  new StorageUtils();
+console.log(sUtils);
+const x = await sUtils.init();
+console.log(x);
+window.sUtils = sUtils;
+console.log(window.sUtils);
+
+
 router.init();
 window.provider =  new ethers.JsonRpcProvider("http://127.0.0.1:9545");
 // Hook CTA button (use querySelector for multi-class selector)

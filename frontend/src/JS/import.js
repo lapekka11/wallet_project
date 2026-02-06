@@ -11,6 +11,29 @@ export function initImportPage(){
     const confirmPassword = document.getElementById("confirmImportPassword");
     const passwordStrengthDiv = document.getElementById("importStrength");
     const passwordMatchDiv = document.getElementById("importMatch");
+    const seedPhraseBtn = document.getElementById("toggleSeedPhrase");
+    const pkBtn = document.getElementById("togglePK");
+    let pkOrNot = false;
+
+    seedPhraseBtn.addEventListener('click', async(e) => {
+        if(pkOrNot){
+            seedPhraseBtn.className="mode-btn active";
+            pkBtn.className = "mode-btn";
+            pkOrNot = false;
+            seed.placeholder = "Enter your seed phrase here, separated by spaces.";
+        }
+        
+    });
+
+    pkBtn.addEventListener('click', async(e) => {
+        if(!pkOrNot){
+            seedPhraseBtn.className="mode-btn";
+            pkBtn.className="mode-btn active";
+            pkOrNot = true;
+            seed.placeholder = "Enter your private key here, no spaces.";
+        }
+    })
+
 
     password.addEventListener('input', () => {
         const strength = evaluatePasswordStrength(password.value);
@@ -32,25 +55,34 @@ export function initImportPage(){
         e.preventDefault();
         if (password.value !== confirmPassword.value) {
             alert('Passwords do not match. Please try again.');
-            return;
+            router.navigate("/import");
         }
         if (evaluatePasswordStrength(password.value) < 3) {
             alert('Please choose a stronger password.');
-            return;
+            router.navigate("/import");
         }
 
         if(seed.value == ""){
-            alert("You must input a seedPhrase to go forward!");
-            return;
+            if(pkOrNot){
+                alert("You must input a private key to go forward!");
+            }
+            else{
+                alert("You must input a seedPhrase to go forward!");
+            }
+            router.navigate("/import");
         }
-
-        
-        const wallet = ethers.Wallet.fromPhrase(seed.value);
+        let wallet;
+        if(pkOrNot){
+            wallet = new ethers.Wallet(seed.value, window.provider);
+        }
+        else{
+             wallet = ethers.Wallet.fromPhrase(seed.value);
+        }
         if(!wallet){
-            alert("invalid seed");
+            alert("invalid key");
             return;
         }
-        if(await db.getWallet(wallet.address)){
+        if(await window.sUtils.getWallet(wallet.address)){
             alert("wallet already stored");
             router.navigate('/dashboard'); 
         }
@@ -60,15 +92,15 @@ export function initImportPage(){
         // support either { encryptedData, key } or { ciphertext, iv, salt, key }
 
         console.log("trying");
-        if(!window.db){
+        if(!window.sUtils.db){
             console.log("no DB :(");
         }
-        console.log(window.db);
+        console.log(window.sUtils);
         try{
             console.log(encryptedData.ciphertext);
             console.log(encryptedData.password);
-            await window.db.saveWallet(encryptedData, wallet.address, encryptedData.password);
-            console.log(await window.db.getAllWallets());
+            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedData.password, walletName.value);
+            console.log(await window.sUtils.getAllWallets());
         } catch (err) {
             console.error('Failed saving wallet', err);
             alert('Failed to save wallet. See console for details.');
