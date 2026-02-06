@@ -135,7 +135,6 @@ export const DashboardPage = {
         
         <div class="actions-row">
           <button id="sendBtn" class="action-btn">Send</button>
-          <button id="swapBtn" class="action-btn">Swap</button>
           <button id="buyBtn" class="action-btn">Buy</button>
         </div>
         
@@ -303,30 +302,6 @@ export const SettingsPage ={
         
         <div class="preference-item">
           <div class="preference-info">
-            <h4>Theme</h4>
-            <p>Choose your interface theme</p>
-          </div>
-          <div class="theme-options">
-            <label class="theme-option">
-              <input type="radio" name="theme" value="dark" checked>
-              <span class="theme-preview dark-theme"></span>
-              <span>Dark</span>
-            </label>
-            <label class="theme-option">
-              <input type="radio" name="theme" value="light">
-              <span class="theme-preview light-theme"></span>
-              <span>Light</span>
-            </label>
-            <label class="theme-option">
-              <input type="radio" name="theme" value="auto">
-              <span class="theme-preview auto-theme"></span>
-              <span>Auto</span>
-            </label>
-          </div>
-        </div>
-        
-        <div class="preference-item">
-          <div class="preference-info">
             <h4>Transaction Settings</h4>
             <p>Default gas settings and confirmations</p>
           </div>
@@ -369,68 +344,10 @@ export const SettingsPage ={
           </div>
         </div>
         
-        <div class="wallet-tools">
-          <button id="addressBookBtn" class="btn btn-secondary">Address Book</button>
-          <button id="tokenManagementBtn" class="btn btn-secondary">Manage Tokens</button>
-          <button id="connectedSitesBtn" class="btn btn-secondary">Connected Sites</button>
-        </div>
+
       </div>
     </div>
     
-    <!-- Advanced & Developer -->
-    <div class="settings-section">
-      <h2 class="section-title">Advanced</h2>
-      <div class="settings-card">
-        <div class="advanced-item">
-          <div class="advanced-info">
-            <h4>Developer Mode</h4>
-            <p>Enable developer features and tools</p>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="developerToggle">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        
-        <div id="developerOptions" class="developer-options" style="display: none;">
-          <div class="dev-item">
-            <button id="resetAccountBtn" class="btn btn-secondary">Reset Account</button>
-            <p class="dev-hint">Clears transaction history and resyncs</p>
-          </div>
-          
-          <div class="dev-item">
-            <button id="customRPCBtn" class="btn btn-secondary">Custom RPC</button>
-            <p class="dev-hint">Add custom network endpoints</p>
-          </div>
-          
-          <div class="dev-item">
-            <button id="stateLogsBtn" class="btn btn-secondary">State Logs</button>
-            <p class="dev-hint">View application state for debugging</p>
-          </div>
-          
-          <div class="dev-item">
-            <button id="clearCacheBtn" class="btn btn-secondary">Clear Cache</button>
-            <p class="dev-hint">Clear all cached data</p>
-          </div>
-        </div>
-        
-        <div class="advanced-item">
-          <div class="advanced-info">
-            <h4>Privacy Settings</h4>
-            <p>Control analytics and data collection</p>
-          </div>
-          <button id="privacySettingsBtn" class="btn btn-secondary">Configure</button>
-        </div>
-        
-        <div class="advanced-item">
-          <div class="advanced-info">
-            <h4>Export All Data</h4>
-            <p>Download all your wallet data</p>
-          </div>
-          <button id="exportAllDataBtn" class="btn btn-secondary">Export</button>
-        </div>
-      </div>
-    </div>
     
     <!-- Danger Zone -->
     <div class="settings-section danger-zone">
@@ -858,9 +775,6 @@ export const SendingPage = {
   <div class="send-container">
     <!-- Quick Actions -->
     <div class="quick-actions">
-      <button class="quick-action-btn" id="addressBookBtn">
-        📒 Address Book
-      </button>
       <button class="quick-action-btn" id="recentRecipientsBtn">
         ⏱️ Recent
       </button>
@@ -897,7 +811,7 @@ export const SendingPage = {
       <div class="form-section">
         <h3 class="section-title">
           <span>To Recipient</span>
-          <span class="section-subtitle">Enter address, ENS name, or select from contacts</span>
+          <span class="section-subtitle">Enter address</span>
         </h3>
         
         <div class="recipient-input-container">
@@ -917,17 +831,9 @@ export const SendingPage = {
           
           <div class="validation-feedback" id="addressValidation">
             <div class="validation-icon"></div>
-            <span class="validation-text">Enter a valid Ethereum address or ENS name</span>
+            <span class="validation-text">Enter a valid Ethereum address </span>
           </div>
-          
-          <!-- ENS Resolution -->
-          <div id="ensResolution" class="ens-resolution" style="display: none;">
-            <div class="ens-resolved">
-              <span class="ens-name" id="ensName"></span>
-              <span class="ens-address" id="resolvedAddress"></span>
-              <span class="ens-check">✅</span>
-            </div>
-          </div>
+         
           
           <!-- Recipient Preview -->
           <div id="recipientPreview" class="recipient-preview" style="display: none;">
@@ -983,7 +889,6 @@ export const SendingPage = {
             <span class="exchange-rate" id="exchangeRate">1 ETH = $0.00</span>
           </div>
         </div>
-        
         <!-- Balance Information -->
         <div class="balance-info">
           <div class="balance-row">

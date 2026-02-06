@@ -5,6 +5,7 @@ let from;
 let to;
 let wallets;
 let amountValue;
+let currWalletTransactions;
 export async function initSendingPage(){
     const fromSelector = document.getElementById("fromAccount");
     const selectedBalance = document.getElementById("selectedBalance");
@@ -16,13 +17,27 @@ export async function initSendingPage(){
     const availableBalance = document.getElementById("availableBalance");
     const remainingBalance = document.getElementById("remainingBalance");
     const sendBtn = document.getElementById("sendBtn");
+    const recentRecipient = document.getElementById("recentRecipientsBtn");
     
     wallets = window.sUtils.allWallets;
+    
     renderWallets(fromSelector, selectedBalance, availableBalance, remainingBalance, amount);
 
     toAdress.addEventListener('input', async(e) => {
         to = toAdress.value;
     });
+
+    recentRecipient.addEventListener('click', async(e) => {
+        if (!currWalletTransactions || !currWalletTransactions.length) {
+    alert("You have to select a wallet to view recent transactions.");
+  } else {
+    const message = currWalletTransactions
+      .map(tx => `From: ${tx.from},\nTo: ${tx.to},\nAmount: ${tx.amount}`)
+      .join('\n');
+
+    alert(message);
+  }
+    })
 
     sendBtn.addEventListener('click' , async(e) => {
             e.preventDefault();
@@ -48,7 +63,7 @@ export async function initSendingPage(){
         else{
             try {
             const tx = await sendTransaction(from, to, amount);
-            const save = window.sUtils.saveTransaction(tx,from.address,to);
+            const save = window.sUtils.saveTransaction(tx,from.address,to, amount);
             console.log(tx); 
             alert('Transaction sent successfully!');
          } catch(err) {
@@ -140,5 +155,6 @@ async function sendTransaction(from, to, amountElement) {
     selectedBalance.textContent = availableBalance.textContent;
     const x = parseFloat(availableBalance.textContent) - parseFloat(amount.value); 
     remainingBalance.textContent = (x >= 0 ? x : 0.0) + ' ETH';
+    currWalletTransactions = await window.sUtils.getTransactionsByAddress(from.address);
   });
 }

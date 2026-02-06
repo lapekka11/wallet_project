@@ -61,7 +61,7 @@ export class StorageUtils{
         });
     }
   
-  async  saveTransaction(txData, from, to) {
+  async  saveTransaction(txData, from, to, amountelem) {
     
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(['transactions'], 'readwrite');
@@ -69,10 +69,11 @@ export class StorageUtils{
       
       const txToSave = {
         
-        from,
-        to,
+        addressFrom: from,
+        addressTo:to,
         savedAt: Date.now(),
-        timestamp: txData.timestamp || Date.now()
+        timestamp: txData.timestamp || Date.now(),
+        amount: amountelem.value
       };
       
       const request = store.put(txToSave);
@@ -83,42 +84,41 @@ export class StorageUtils{
     });
   }
   
-      async getTransactionsByAddress(address, limit = 50) {
-        if (!this.db) throw new Error('DB not initialized');
-        
-        return new Promise((resolve, reject) => {
-            const transaction = this.db.transaction(['transactions'], 'readonly');
-            const store = transaction.objectStore('transactions');
-            
-            // Try to use index if it exists, otherwise fallback
-            const request = store.getAll();
-            
-            request.onsuccess = () => {
-                const allTxs = request.result || [];
-                
-                // Filter transactions by address (both from and to)
-                const filteredTxs = allTxs.filter(tx => {
-                    const fromMatch = tx.from && tx.from.toLowerCase() === address.toLowerCase();
-                    const toMatch = tx.to && tx.to.toLowerCase() === address.toLowerCase();
-                    return fromMatch || toMatch;
-                });
-                
-                // Sort by timestamp (newest first)
-                const sortedTxs = filteredTxs.sort((a, b) => {
-                    const timeA = a.timestamp || a.savedAt || 0;
-                    const timeB = b.timestamp || b.savedAt || 0;
-                    return timeB - timeA;
-                });
-                
-                // Limit results
-                const limitedTxs = filteredTxs.slice(0, limit);
-                
-                resolve(limitedTxs);
-            };
-            
-            request.onerror = () => reject(request.error);
-        });
-    }
+  async getTransactionsByAddress(address, limit = 50) {
+  if (!this.db) throw new Error('DB not initialized');
+
+  return new Promise((resolve, reject) => {
+    const tx = this.db.transaction(['transactions'], 'readonly');
+    const store = tx.objectStore('transactions');
+    const request = store.getAll();
+    
+    
+    request.onsuccess = () => {
+        console.log(request);
+      const allTxs = request.result ;
+      const addr = address.toLowerCase();
+
+      const filteredTxs = allTxs.filter(tx => {
+        const fromMatch = tx.addressFrom && tx.addressFrom.toLowerCase() === addr;
+        const toMatch = tx.addressTo && tx.addressTo.toLowerCase() === addr;
+        return fromMatch || toMatch;
+      });
+      console.log(filteredTxs);
+
+      const sortedTxs = filteredTxs.sort((a, b) => {
+        const timeA = a.timestamp || a.savedAt || 0;
+        const timeB = b.timestamp || b.savedAt || 0;
+        return timeB - timeA;
+      });
+      console.log(sortedTxs);
+
+      resolve(sortedTxs.slice(0,limit));
+    };
+
+    request.onerror = () => reject(request.error);
+  });
+}
+
   async savePreference(key, value) {
     
     return new Promise((resolve, reject) => {
@@ -188,8 +188,9 @@ updateCurrWallet(wallet){
 
 async updateRecentTransactions(wallet){
     console.log(wallet);
+    console.log("nianianianiania");
     this.recentTransactions = await this.getTransactionsByAddress(wallet.address);
-    return recentTransactions;
+    return this.recentTransactions;
 }
 
 updateContacts(contact){

@@ -49,7 +49,7 @@ import{ethers} from 'ethers';
      currentAddress.textContent = `Address: ${wallet.address}`;
      console.log(wallet);
      balanceDisplay.textContent = ethers.formatEther( await provider.getBalance(wallet.address)) + ' ETH';
-     const transactions = await window.sUtils.updateRecentTransactions(wallet) || [];
+     const transactions = await window.sUtils.updateRecentTransactions(wallet) ;
      console.log(transactions);
 
 transactionsList.innerHTML = ''; // clear existing
@@ -66,9 +66,9 @@ if (!transactions.length) {
     const row = document.createElement('div');
 
     row.innerHTML = `
-      <span>${tx.type || 'Transfer'}</span>
+      <span>${'From: ',tx.addressFrom || 'From: '}</span>
+      <span>${'To: ',tx.addressTo || 'To: '}</span>
       <span>${tx.amount || '0.00'} ETH</span>
-      <span>${tx.date || ''}</span>
     `;
 
     transactionsList.appendChild(row);

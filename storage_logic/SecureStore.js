@@ -4,7 +4,7 @@ export class SecureStore {
         // unified names
         this.dbName = 'crypto_wallet_store';
         this.dbVersion = 2;
-        this.db = null;
+        this.db1 = null;
         this.initPromise = null;
     }
 
@@ -28,8 +28,8 @@ export class SecureStore {
             };
 
             request.onsuccess = (event) => {
-                this.db = event.target.result;
-                resolve(this.db);
+                this.db1 = event.target.result;
+                resolve(this.db1);
             };
 
             request.onerror = (event) => {
@@ -49,14 +49,14 @@ export class SecureStore {
  async clearDatabase() {
     if (this.db) {
       try { this.db.close(); } catch (e) { }
-      this.db = null;
+      this.db1 = null;
     }
     return new Promise((resolve, reject) => {
       const req = indexedDB.deleteDatabase(this.dbName);
       req.onsuccess = () => {
         console.log(`Database ${this.dbName} deleted`);
         this.initPromise = null;
-        this.db = null;
+        this.db1 = null;
         resolve();
       };
       req.onerror = (e) => reject(e.target.error);

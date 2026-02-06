@@ -46,7 +46,7 @@ export async function initSettingsPage(){
 
     removeWalletBtn.addEventListener('click', async(e)=>{
         console.log("listening");
-        let prom = await window.db.deleteWallet(wallet.address);
+        let prom = await window.sUtils.deleteWallet(wallet.address);
         if(wallets.length != 1){
             
             setWallet(wallets[0]);
@@ -62,7 +62,7 @@ export async function initSettingsPage(){
     })
 
     reset.addEventListener('click', async (e) => {
-        let prompt = await window.db.clearDatabase();
+        let prompt = await window.sUtils.db.clearDatabase();
         window.router.navigate('/');
     } );
 
@@ -70,7 +70,7 @@ export async function initSettingsPage(){
         let verification = prompt("To change your password please input your old one: " , "password");
         if(verification === wallet.key){
             let newPW = prompt("Please enter your new Password: ", "newPassword");
-            let req = await window.db.changePassword(wallet.address,newPW);
+            let req = await window.sUtils.changePassword(wallet.address,newPW);
             if(req){
                 alert("Password changed succesfully!");
             }
