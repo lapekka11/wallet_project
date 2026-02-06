@@ -22,6 +22,16 @@ export async function initSettingsPage(){
     const unlock = document.getElementById("unlockWallet");
     const lockScreen = document.getElementById("lock-overlay");
     const unlockPassword = document.getElementById("unlockPassword");
+    const networkSelect = document.getElementById("networkSelect");
+
+
+   const currentNetwork = await window.sUtils.getNetwork();
+   networkSelect.value = currentNetwork; 
+   networkSelect.addEventListener("change", async () => {
+        const selected = networkSelect.value;
+        await window.sUtils.setNetwork(selected);
+        location.reload(); 
+    });
 
 
     walletContainer = document.getElementById("walletsContainer");
@@ -109,8 +119,6 @@ export async function initSettingsPage(){
             e.preventDefault();
             console.log("nia");
             lockScreen.style.display = "flex";
-
-
     });
 
     unlock.addEventListener('click' , async(e) => {
@@ -123,6 +131,7 @@ export async function initSettingsPage(){
                 alert("incorrect password");
             }       
         } 
+        location.reload();
     });
 
 }

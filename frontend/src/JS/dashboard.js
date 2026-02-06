@@ -95,12 +95,13 @@ if (!transactions.length) {
         e.preventDefault();
         if(locked){
             if(unlockPassword.value === window.sUtils.currWallet.key){
-                lockScreen.style.display = "none";
+                location.reload();                
             }     
             else{
                 alert("incorrect password");
             }       
         } 
+        
     });
  }
 

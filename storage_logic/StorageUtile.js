@@ -197,5 +197,13 @@ updateContacts(contact){
     contactBook.push(contact);
 }
 
+async setNetwork(networkKey) {
+  await this.savePreference("selectedNetwork", networkKey);
+}
+
+async getNetwork() {
+  return (await this.getPreference("selectedNetwork")) || "sepolia";
+}
+
     
 }

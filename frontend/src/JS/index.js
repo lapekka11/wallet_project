@@ -207,7 +207,7 @@ export const SettingsPage ={
               <button id="copyAddressBtn" class="btn-small">📋 Copy</button>
             </div>
             <div class="profile-meta">
-              <span class="meta-item">Network: <span id="currentNetwork">Sepolia</span></span>
+              <span class="meta-item">Network: <span id="currentNetwork">Local</span></span>
             </div>
           </div>
         </div>
@@ -279,7 +279,7 @@ export const SettingsPage ={
             <select id="networkSelect" class="form-select">
               <option value="ethereum">Ethereum Mainnet</option>
               <option value="sepolia" selected>Sepolia Testnet</option>
-              <option value="goerli">Hardhat Testnet</option>
+              <option value="localhost">Localhost</option>
             </select>
           </div>
         </div>

@@ -4,6 +4,8 @@ import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, I
 import {SecureStore} from '../storage_logic/SecureStore';
 import{ethers} from 'ethers';
 import { StorageUtils } from '../storage_logic/StorageUtile';
+import {NETWORKS} from '/src/JS/config.js'  ;
+
 
 
 const router = new Router();
@@ -30,7 +32,11 @@ console.log(window.sUtils);
 
 
 router.init();
-window.provider =  new ethers.JsonRpcProvider("http://127.0.0.1:9545");
+
+const networkKey = await window.sUtils.getNetwork();
+const network = NETWORKS[networkKey];
+const provider = new ethers.JsonRpcProvider(network.rpcUrl);
+window.provider = provider;
 // Hook CTA button (use querySelector for multi-class selector)
 const btn = document.querySelector('.btn.btn-primary.btn-large');
 if (btn) {
