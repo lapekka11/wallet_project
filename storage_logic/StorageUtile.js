@@ -14,8 +14,9 @@ export class StorageUtils{
             return this.db;
         }
         
-        
+        this.selfDestruct = this.db;
         this.db = await this.db.init(); 
+        
         this.initialized = true;
         
         this.allWallets = await this.getAllWallets();
@@ -202,7 +203,7 @@ async setNetwork(networkKey) {
 }
 
 async getNetwork() {
-  return (await this.getPreference("selectedNetwork")) || "sepolia";
+  return (await this.getPreference("selectedNetwork")) || "localhost";
 }
 
     

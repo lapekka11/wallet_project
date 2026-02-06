@@ -72,7 +72,8 @@ export async function initSettingsPage(){
     })
 
     reset.addEventListener('click', async (e) => {
-        let prompt = await window.sUtils.db.clearDatabase();
+        let prompt = await window.sUtils.selfDestruct.clearDatabase();
+        location.reload();
         window.router.navigate('/');
     } );
 

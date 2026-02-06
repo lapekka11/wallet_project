@@ -278,8 +278,8 @@ export const SettingsPage ={
           <div class="preference-control">
             <select id="networkSelect" class="form-select">
               <option value="ethereum">Ethereum Mainnet</option>
-              <option value="sepolia" selected>Sepolia Testnet</option>
-              <option value="localhost">Localhost</option>
+              <option value="sepolia" >Sepolia Testnet</option>
+              <option value="localhost" selected >Localhost</option>
             </select>
           </div>
         </div>

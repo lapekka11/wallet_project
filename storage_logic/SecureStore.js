@@ -62,7 +62,8 @@ export class SecureStore {
       req.onerror = (e) => reject(e.target.error);
       req.onblocked = () => {
         console.warn('Deletion blocked — other tabs/connections open');
-        reject(new Error('Database deletion blocked. Close other tabs/connections.'));
+        location.reload();
+        window.router.navigate("/");
       };
     });
   }
