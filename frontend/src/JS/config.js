@@ -18,3 +18,27 @@ export const NETWORKS = {
     symbol: "ETH",
   },
 };
+
+export async function getETHPriceFromAPI() {
+    try {
+        // Coingecko API +
+        const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+        const data = await response.json();
+        return data.ethereum.usd;
+        
+    } catch (error) {
+        console.error('Coingecko API failed:', error);
+        
+     {            
+            // Final fallback to Binance
+            try {
+                const response = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=ETHUSDT');
+                const data = await response.json();
+                return parseFloat(data.price);
+            } catch (error3) {
+                console.error('All APIs failed, using default:', error3);
+                return 3500; // Default fallback price
+            }
+        }
+    }
+};

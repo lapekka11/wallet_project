@@ -1,4 +1,5 @@
 import{ethers} from 'ethers';
+import { getETHPriceFromAPI } from './config';
 
 
 
@@ -18,6 +19,8 @@ import{ethers} from 'ethers';
      const unlock = document.getElementById("unlockWallet");
      const unlockPassword = document.getElementById("unlockPassword");
      
+
+
     
     const dbInstance = window.sUtils;
     console.log(dbInstance.db);
@@ -48,7 +51,8 @@ import{ethers} from 'ethers';
  
      currentAddress.textContent = `Address: ${wallet.address}`;
      console.log(wallet);
-     balanceDisplay.textContent = ethers.formatEther( await provider.getBalance(wallet.address)) + ' ETH';
+     const balance = ethers.formatEther( await provider.getBalance(wallet.address));
+     balanceDisplay.textContent = balance + ' ETH';
      const transactions = await window.sUtils.updateRecentTransactions(wallet) ;
      console.log(transactions);
 
@@ -103,6 +107,10 @@ if (!transactions.length) {
         } 
         
     });
+
+    const rate = await getETHPriceFromAPI();
+    console.log(rate);
+    fiatValue.textContent = "$"+ ((balance) * rate).toFixed(2); 
  }
 
  export async function setWallet(wallet1){

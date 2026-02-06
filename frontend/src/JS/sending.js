@@ -1,5 +1,6 @@
 import {ethers} from 'ethers'
 import {decryptData} from '../../../storage_logic/EncryptionUtils';
+import { getETHPriceFromAPI } from './config';
 
 let from; 
 let to;
@@ -18,6 +19,11 @@ export async function initSendingPage(){
     const remainingBalance = document.getElementById("remainingBalance");
     const sendBtn = document.getElementById("sendBtn");
     const recentRecipient = document.getElementById("recentRecipientsBtn");
+
+    const rate = await getETHPriceFromAPI();
+
+    exchangeRate.textContent =( "1 ETH = $" + rate);
+    
     
     wallets = window.sUtils.allWallets;
     
@@ -37,7 +43,17 @@ export async function initSendingPage(){
 
     alert(message);
   }
-    })
+    });
+
+   amount.addEventListener('input', async(e) => {
+    const availableBalanceNum = parseFloat(availableBalance.textContent);
+    const amountValue = parseFloat(amount.value); 
+    const remaining = (availableBalanceNum - amountValue > availableBalanceNum ? 0 : availableBalanceNum - amountValue);
+
+    
+    remainingBalance.textContent = (remaining >= 0 ? remaining : 0) + ' ETH';
+    fiatValue.textContent = "≈ $"+ (amountValue * rate >= 0 ? amountValue*rate : 0) ; 
+});
 
     sendBtn.addEventListener('click' , async(e) => {
             e.preventDefault();
@@ -153,7 +169,9 @@ async function sendTransaction(from, to, amountElement) {
     from = JSON.parse(e.target.value);
     availableBalance.textContent = ethers.formatEther(await window.provider.getBalance(from.address));
     selectedBalance.textContent = availableBalance.textContent;
-    const x = parseFloat(availableBalance.textContent) - parseFloat(amount.value); 
+    console.log(availableBalance.textContent);
+    const x = availableBalance.textContent - amount.textContent; 
+    console.log(x);
     remainingBalance.textContent = (x >= 0 ? x : 0.0) + ' ETH';
     currWalletTransactions = await window.sUtils.getTransactionsByAddress(from.address);
   });
