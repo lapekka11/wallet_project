@@ -1,7 +1,6 @@
 import {ethers} from 'ethers';
-
-import { deriveKey, encryptData, decryptData ,evaluatePasswordStrength } from '../../../storage_logic/EncryptionUtils';
-
+import{sendToWorker} from '../../main.js';
+import { evaluatePasswordStrength } from './config.js';
 class Wallet {
     constructor(password,address){
         this.password = password;
@@ -56,59 +55,46 @@ export async function initWalletCreation(){
         if(nameField.value == ""){
             nameField.value = "wallet X";
         }
-        const wallet = ethers.Wallet.createRandom().connect(window.provider);
 
-        let seedPhrase = wallet.mnemonic.phrase;
-        let prompt = confirm('Your seed phrase: \n'+ seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
-        if(!prompt){
-            
-           alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
-           location.reload();
-           return;
-        }
-        const encryptedData = await encryptData(wallet.privateKey, passwordField.value);
-        const encryptedPassword = await encryptData(passwordField.value, passwordField.value);
-        console.log('encrypt result', encryptedData);
-        // support either { encryptedData, key } or { ciphertext, iv, salt, key }
-
-        console.log("trying");
-        if(!window.sUtils){
-            console.log("no DB :(");
-        }
-        console.log(window.sUtils);
-        try{
-            console.log(encryptedData.ciphertext);
-            console.log(encryptedPassword.ciphertext);
-
-
-
-            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedPassword, nameField.value);
-            console.log(window.sUtils);
-           const wallets =  await window.sUtils.updateWallets();
-           const currWallet = await window.sUtils.updateCurrWallet(wallet);
-           console.log(wallets);
-                    try {
-          const funder = window.provider.listAccounts(); // first unlocked account from hardhat node
-            await window.provider.send('eth_sendTransaction', [{
-                from: funder[0],
-                to: wallet.address,
-                value: '0x16345785d8a0000' // 0.1 ETH in hex wei
-              }]);
-              console.log('Funded wallet via eth_sendTransaction', wallet.address);
-        } catch (err) {
-          console.warn('Could not auto-fund wallet (node may be down or signer not available):', err);
-        }
-        } catch (err) {
-            console.error('Failed saving wallet', err);
-            alert('Failed to save wallet. See console for details.');
-            return;
-        }
-         
-         
-            
-
-        confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.address);
-            window.router.navigate('/dashboard');
+   try {        
+    console.log("Creating wallet with password: " + passwordField.value);
+    
+    console.log("Sending SAVE_WALLET message to worker...");
+    const payload = {
+        password: passwordField.value,
+        name: nameField.value
+    };
+    console.log(payload);
+    const receipt = await sendToWorker("SAVE_WALLET",payload) ;
+    
+    console.log("Raw receipt received:", receipt);
+    console.log("Receipt type:", typeof receipt);
+    console.log("Receipt keys:", Object.keys(receipt));
+    
+    // Check if receipt has the expected structure
+    if (!receipt || !receipt.payload) {
+        throw new Error("Invalid receipt structure: " + JSON.stringify(receipt));
+    }
+    
+    console.log("Wallet creation response received:", receipt);
+    
+    let seedPhrase = receipt.payload.mnemonic;
+    console.log("Seed phrase extracted");
+    
+    let prompt = confirm('Your seed phrase: \n' + seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
+    
+    console.log("About to show wallet address confirm");
+    confirm('Wallet Created successfully! Your wallet address is: ' + receipt.payload.address);
+    
+    console.log("Navigating to dashboard");
+    window.router.navigate('/dashboard');
+}
+catch(e) {
+    console.error("Full error object:", e);
+    console.error("Error message:", e.message);
+    console.error("Error stack:", e.stack);
+    alert("Wallet creation failed because of: " + (e.message || e.textContent || e));
+}
     });
 }
 

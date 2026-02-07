@@ -1,6 +1,6 @@
 import{ethers} from 'ethers';
 import { getETHPriceFromAPI } from './config';
-
+import{sendToWorker} from '../../main.js';
 
 
  export let wallet = null;
@@ -13,6 +13,7 @@ import { getETHPriceFromAPI } from './config';
         window.router.navigate('/locked');
         return;
     }
+
      const balanceDisplay = document.getElementById('balanceDisplay');
      const fiatValue = document.getElementById('fiatValue');
      const transactionsList = document.getElementById('transactionsList');
@@ -27,24 +28,17 @@ import { getETHPriceFromAPI } from './config';
 
 
     
-    const dbInstance = window.sUtils;
-    console.log(dbInstance.db);
-    if (!dbInstance || !dbInstance.db) {
-        console.error('DB not initialized in dashboard');
-        alert('Storage not ready — reload the app.');
-        window.router.navigate('/');
-        return;
-    }
+    
     
     try {
-        wallets = dbInstance.wallets || await dbInstance.getAllWallets();
+        wallets = (await sendToWorker("GET_ALL_WALLETS")).payload;
     } catch (err) {
         console.error('Error fetching wallets', err);
         alert('Failed to load wallets. See console for details.');
         window.router.navigate('/create');
         return;
     }
-     wallet = dbInstance.currWallet;
+     wallet = (await sendToWorker("GET_CURRWALLET")).payload || null;
      console.log(wallet);
      console.log(wallets);
      if(!wallet){
@@ -56,9 +50,9 @@ import { getETHPriceFromAPI } from './config';
  
      currentAddress.textContent = `Address: ${wallet.address}`;
      console.log(wallet);
-     const balance = ethers.formatEther( await provider.getBalance(wallet.address));
+     const balance = (await sendToWorker("GET_BALANCE")).payload;
      balanceDisplay.textContent = balance + ' ETH';
-     const transactions = await window.sUtils.updateRecentTransactions(wallet) ;
+     const transactions = (await sendToWorker("GET_TXS")).payload ;
      console.log(transactions);
 
 transactionsList.innerHTML = ''; // clear existing
@@ -94,8 +88,9 @@ if (!transactions.length) {
             e.preventDefault();
             console.log("nia");
             document.cookie = "locked = true";
+            const text = currentAddress.textContent;
+            await sendToWorker("LOCK", {address: text});
             window.router.navigate('/locked');
-
 
     });
 

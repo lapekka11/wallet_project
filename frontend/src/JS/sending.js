@@ -1,6 +1,7 @@
 import {ethers} from 'ethers'
-import {decryptData} from '../../../storage_logic/EncryptionUtils';
+import {decryptData} from '../Workers/EncryptionUtils';
 import { getETHPriceFromAPI } from './config';
+import {sendToWorker} from '../../main.js';
 
 let from; 
 let to;
@@ -25,7 +26,7 @@ export async function initSendingPage(){
     exchangeRate.textContent =( "1 ETH = $" + rate);
     
     
-    wallets = window.sUtils.allWallets;
+    wallets =( await sendToWorker("GET_ALL_WALLETS")).payload;
     
     renderWallets(fromSelector, selectedBalance, availableBalance, remainingBalance, amount);
 
@@ -79,7 +80,6 @@ export async function initSendingPage(){
         else{
             try {
             const tx = await sendTransaction(from, to, amount);
-            const save = window.sUtils.saveTransaction(tx,from.address,to, amount);
             console.log(tx); 
             alert('Transaction sent successfully!');
          } catch(err) {
@@ -127,26 +127,18 @@ async function sendTransaction(from, to, amountElement) {
             salt: objToUint8Array(walletData.ciphertext.salt),
         };
         console.log("encryptedData prepared for decryption:", encryptedData);
-        
-        // Decrypt the private key using the password
-        const password1 = await decryptData(encryptedData.key, password);
-        if(password1 !== password){
+        const passCheck = await sendToWorker("CHECK_PASS_ADDRESS", {password, address: walletData.address}); 
+        if(passCheck.type === "FAIL"){
             alert("Incorrect password!");
-            location.reload();
+            return;
         }
-        const privateKey = await decryptData(encryptedData, password);
-        console.log("privateKEy decrypted");
+        const value = amountElement.value;
+        const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value});
+        if(receipt.type === "TX_SENT"){
+            alert("Successfully sent the transaction!");
+        }
+        // Decrypt the private key using the password
         
-        // Create wallet from decrypted private key
-        const wallet = new ethers.Wallet(privateKey, window.provider);
-        console.log("wallet created tho");
-        // Send transaction
-        const tx = await wallet.sendTransaction({
-            to: to,
-            value: ethers.parseEther(amountElement.value)
-        });
-        
-        console.log('Transaction sent:', tx.hash);
         return tx.hash;
         
     } catch (err) {
@@ -172,12 +164,12 @@ async function sendTransaction(from, to, amountElement) {
   
   fromSelector.addEventListener('change', async (e) => {
     from = JSON.parse(e.target.value);
-    availableBalance.textContent = ethers.formatEther(await window.provider.getBalance(from.address));
+    availableBalance.textContent = (await sendToWorker("GET_BALANCE")).payload;
     selectedBalance.textContent = availableBalance.textContent;
     console.log(availableBalance.textContent);
     const x = availableBalance.textContent - amount.textContent; 
     console.log(x);
     remainingBalance.textContent = (x >= 0 ? x : 0.0) + ' ETH';
-    currWalletTransactions = await window.sUtils.getTransactionsByAddress(from.address);
+    currWalletTransactions = (await sendToWorker("GET_TXS"));
   });
 }

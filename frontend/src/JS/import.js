@@ -1,5 +1,6 @@
 import {ethers, Wallet} from 'ethers'
-import { evaluatePasswordStrength, encryptData,  } from '../../../storage_logic/EncryptionUtils';
+import { evaluatePasswordStrength} from "./config.js";
+import{sendToWorker} from '../../main.js';
 
 
 
@@ -73,44 +74,23 @@ export function initImportPage(){
         }
         let wallet;
         if(pkOrNot){
-            wallet = new ethers.Wallet(seed.value, window.provider);
+            const seed1 = seed.value.trim();
+            const password1 = password.value;
+            const name1 = walletName.value || "Wallet X";
+             
+            const payload = {seed: seed1, password: password1, name: name1};
+            console.log(payload);
+            wallet = await sendToWorker("IMPORT_PK", payload);
         }
         else{
-             wallet = ethers.Wallet.fromPhrase(seed.value);
+             wallet = await sendToWorker("IMPORT_SEED",  {seed: seed.value, password: password.value, name: walletName.value});
         }
         if(!wallet){
             alert("invalid key");
             return;
-        }
-        if(await window.sUtils.getWallet(wallet.address)){
-            alert("wallet already stored");
-            router.navigate('/dashboard'); 
-        }
-        
-        const encryptedData = await encryptData(wallet.privateKey, password.value);
-        console.log('encrypt result', encryptedData);
-        // support either { encryptedData, key } or { ciphertext, iv, salt, key }
+        }    
 
-        console.log("trying");
-        if(!window.sUtils.db){
-            console.log("no DB :(");
-        }
-        console.log(window.sUtils);
-        try{
-            console.log(encryptedData.ciphertext);
-            console.log(encryptedData.password);
-            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedData.password, walletName.value);
-            console.log(await window.sUtils.getAllWallets());
-        } catch (err) {
-            console.error('Failed saving wallet', err);
-            alert('Failed to save wallet. See console for details.');
-            return;
-        }
-         
-         
-            
-
-        confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.address);
+        confirm('Wallet Created succesfully! Your wallet address is: ' + wallet.payload);
             window.router.navigate('/dashboard');
     });
     
