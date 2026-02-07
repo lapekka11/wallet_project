@@ -56,21 +56,45 @@ export async function initWalletCreation(){
             nameField.value = "wallet X";
         }
 
-    try{        
-        const receipt = await sendToWorker("SAVE_WALLET",{
-            password: passwordField.value,
-            name: nameField.value
-        });
-        let seedPhrase = receipt.payload.mnemonic;
-        let prompt = confirm('Your seed phrase: \n'+ seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
-        
+   try {        
+    console.log("Creating wallet with password: " + passwordField.value);
     
-        confirm('Wallet Created succesfully! Your wallet address is: ' + receipt.payload.address);
-            window.router.navigate('/dashboard');
+    console.log("Sending SAVE_WALLET message to worker...");
+    const payload = {
+        password: passwordField.value,
+        name: nameField.value
+    };
+    console.log(payload);
+    const receipt = await sendToWorker("SAVE_WALLET",payload) ;
+    
+    console.log("Raw receipt received:", receipt);
+    console.log("Receipt type:", typeof receipt);
+    console.log("Receipt keys:", Object.keys(receipt));
+    
+    // Check if receipt has the expected structure
+    if (!receipt || !receipt.payload) {
+        throw new Error("Invalid receipt structure: " + JSON.stringify(receipt));
     }
-    catch(e){
-        alert("Wallet creation failed because of: " + e.textContent);
-    }
+    
+    console.log("Wallet creation response received:", receipt);
+    
+    let seedPhrase = receipt.payload.mnemonic;
+    console.log("Seed phrase extracted");
+    
+    let prompt = confirm('Your seed phrase: \n' + seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
+    
+    console.log("About to show wallet address confirm");
+    confirm('Wallet Created successfully! Your wallet address is: ' + receipt.payload.address);
+    
+    console.log("Navigating to dashboard");
+    window.router.navigate('/dashboard');
+}
+catch(e) {
+    console.error("Full error object:", e);
+    console.error("Error message:", e.message);
+    console.error("Error stack:", e.stack);
+    alert("Wallet creation failed because of: " + (e.message || e.textContent || e));
+}
     });
 }
 

@@ -88,7 +88,8 @@ if (!transactions.length) {
             e.preventDefault();
             console.log("nia");
             document.cookie = "locked = true";
-            await sendToWorker("LOCK");
+            const text = currentAddress.textContent;
+            await sendToWorker("LOCK", {address: text});
             window.router.navigate('/locked');
 
     });

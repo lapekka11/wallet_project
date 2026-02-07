@@ -43,9 +43,12 @@ export class StorageUtils{
 
     async saveWallet(ciphertext, address, key,  name, hashedKey) {
         if (!this.db) throw new Error('DB not initialized');
+        console.log("Saving wallet to DB with address: ", address);
         const tx = this.db.transaction('wallets', 'readwrite');
         const store = tx.objectStore('wallets');
+        console.log("Wallet data to save: ", { address, name, hashedKey });
         return new Promise((resolve, reject) => {
+          console.log("Adding wallet to IndexedDB: ", { address, name, hashedKey });
             const req = store.add({ address, ciphertext, key, name , createdAt: Date.now(), hashedKey});
             req.onsuccess = () => resolve(req.result);
             req.onerror = (e) => reject(e.target.error);
@@ -177,12 +180,31 @@ export class StorageUtils{
 
   async getWallet(address) {
         if (!this.db) throw new Error('DB not initialized');
+        console.log("Address to get wallet: ", address);  
         const tx = this.db.transaction('wallets', 'readonly');
         const store = tx.objectStore('wallets');
         return new Promise((resolve, reject) => {
             const req = store.get(address);
-            req.onsuccess = () => resolve(req.result || null);
-            req.onerror = (e) => reject(e.target.error);
+            
+            req.onsuccess = () => {
+            console.log("Wallet found:", req.result);
+            resolve(req.result || null);
+        };
+        
+        req.onerror = (e) => {
+            console.error("Error getting wallet:", e.target.error);
+            reject(e.target.error);
+        };
+        
+        // Prevent transaction from auto-closing
+        tx.oncomplete = () => {
+            console.log("Transaction completed for getWallet");
+        };
+        
+        tx.onerror = (e) => {
+            console.error("Transaction error for getWallet:", e.target.error);
+            reject(e.target.error);
+        };
         });
     }
 async changePassword(address, newPassword, oldPassword) {

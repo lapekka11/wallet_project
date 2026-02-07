@@ -74,10 +74,16 @@ export function initImportPage(){
         }
         let wallet;
         if(pkOrNot){
-            wallet = await sendToWorker("IMPORT_PK", {seed: seed.value, password: passwordField.value, name:walletName.value});
+            const seed1 = seed.value.trim();
+            const password1 = password.value;
+            const name1 = walletName.value || "Wallet X";
+             
+            const payload = {seed: seed1, password: password1, name: name1};
+            console.log(payload);
+            wallet = await sendToWorker("IMPORT_PK", payload);
         }
         else{
-             wallet = await sendToWorker("IMPORT_SEED",  {seed: seed.value, password: passwordField.value, name: walletName.value});
+             wallet = await sendToWorker("IMPORT_SEED",  {seed: seed.value, password: password.value, name: walletName.value});
         }
         if(!wallet){
             alert("invalid key");

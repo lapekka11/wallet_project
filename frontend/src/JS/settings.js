@@ -115,7 +115,8 @@ export async function initSettingsPage(){
  lockWallet.addEventListener('click', async(e) => {
             e.preventDefault();
             console.log("nia");
-            
+            const text = currentAddress.textContent;
+            await sendToWorker("LOCK", {address: text});
             document.cookie = "locked = true";
             window.router.navigate('/locked');
 

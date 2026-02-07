@@ -7,6 +7,7 @@ let unlockedWallet = null;
 let provider = null;
 let currentNetwork = "localhost";
 let initialized;
+let currlockedWallet = null;
 self.onmessage = async (event) => {
   const { id, type, payload } = event.data;
 
@@ -18,7 +19,7 @@ self.onmessage = async (event) => {
           await storage.init();
           initialized = true;
         }
-
+        console.log("Storage initialized in worker");
         
         currentNetwork = payload?.network || "localhost";
         provider = initProvider(currentNetwork);
@@ -30,34 +31,45 @@ self.onmessage = async (event) => {
         currentNetwork = payload.network;
         provider = initProvider(currentNetwork);
         await storage.setNetwork(currentNetwork);
-        return reply(id, "NETWORK_SET", currentNetwork);
+        return reply(id, "NETWORK_SET", provider);
       }
 
       case "GET_NETWORK":{
-        return reply(id,"NETWORK_SET", currentNetwork);
+        return reply(id,"NETWORK_SET", provider);
       }
 
       case "UNLOCK": {
         const wallets = await storage.getAllWallets();
         const password = payload.key;
         if (!wallets.length) throw new Error("No wallets stored");
-
-        const walletRecord = wallets.find(w => w.address === payload.address) || wallets[0];
+        console.log("Wallets available for unlocking:", wallets.map(w => w.address));
+        console.log(currlockedWallet);
+        const walletRecord = await storage.getWallet(currlockedWallet);
+        console.log("decrypting wallet with address:", currlockedWallet);
         const decrypted = await decryptData(walletRecord.ciphertext, password);
-
-        unlockedWallet = new ethers.Wallet(decrypted.privateKey, provider);
+        console.log("decryption result:", decrypted);
+        unlockedWallet = new ethers.Wallet(decrypted, provider);
 
         return reply(id, "UNLOCK_OK", { address: unlockedWallet.address });
       }
 
       case "LOCK": {
-        unlockedWallet = null;
-        return reply(id, "LOCK_OK");
-      }
-
+  // Store the currently unlocked wallet address before clearing it
+  if (unlockedWallet) {
+    currlockedWallet = unlockedWallet.address; // Should be just the address string
+    console.log("Locking wallet, current locked wallet set to:", currlockedWallet);
+  } else if (payload && payload.address) {
+    // If address is provided in payload, use that
+    currlockedWallet = payload.address; // Make sure this is just the address string
+    console.log("Setting locked wallet to provided address:", currlockedWallet);
+  }
+  
+  unlockedWallet = null;
+  return reply(id, "LOCK_OK", { lockedAddress: currlockedWallet });
+}
       case "GET_BALANCE": {
         requireUnlocked();
-        const balance = await provider.getBalance(unlockedWallet.address);
+        const balance = await provider.getBalance(storage.currWallet.address);
         return reply(id, "BALANCE", ethers.formatEther(balance));
       }
 
@@ -69,23 +81,19 @@ self.onmessage = async (event) => {
 
       case "SEND_TX": {
         requireUnlocked();
-        const {encryptedData, password} = payload;
+        const {encryptedData, password, to, value} = payload;
 
-        const password1 = await decryptData(encryptedData.key, password);
-        if(password1 !== password){
-            alert("Incorrect password!");
-            location.reload();
-        }
         const privateKey = await decryptData(encryptedData, password);
         console.log("privateKEy decrypted");
         
         // Create wallet from decrypted private key
-        const wallet = new ethers.Wallet(privateKey, currentNetwork);
+        const wallet = new ethers.Wallet(privateKey, provider);
+        console.log(provider);
         console.log("wallet created tho");
         // Send transaction
         const tx = await wallet.sendTransaction({
             to: to,
-            value: ethers.parseEther(amountElement.value)
+            value: ethers.parseEther(value)
         });
         
         console.log('Transaction sent:', tx.hash);
@@ -95,8 +103,8 @@ self.onmessage = async (event) => {
         await storage.saveTransaction(
           receipt,
           wallet.address,
-          payload.tx.to,
-          payload.tx.value
+          payload.to,
+          payload.value
         );
 
         return reply(id, "TX_SENT", receipt);
@@ -109,7 +117,8 @@ self.onmessage = async (event) => {
         const encryptedPassword = await encryptData(password, password);
         const hashedPassword = await hashPassword(password);
         await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedPassword);
-        return reply(id, "WALLET_SAVED",{wallet} );
+        console.log("Wallet saved with address: ", wallet.address);
+        return reply(id, "WALLET_SAVED",{address: wallet.address, mnemonic: wallet.mnemonic} );
       }
 
       case "GET_ALL_WALLETS":{
@@ -147,15 +156,19 @@ self.onmessage = async (event) => {
       }
 
       case "IMPORT_PK":{
-        const {pk,password, name} = payload;
-        const wallet = new ethers.Wallet(seed.value,currentNetwork);
-        if((await getWallet(wallet.address)).payload === ""){
-          return reply(id, "WALLETALREADYHERE", "Wallet already created");
-        }
+        const {seed,password, name} = payload;
+        console.log(payload);
+        const wallet = new ethers.Wallet(seed,currentNetwork);
+           const existingWallet = await storage.getWallet(wallet.address);
+
+       if (existingWallet) {  // Check if it exists
+    return reply(id, "WALLETALREADYHERE", "Wallet already created");
+}
         else{
         const encryptedData = await encryptData(wallet.privateKey, password);
         const encryptedPassword = await encryptData(password, password);
-        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name);          
+        const hashedKey = await hashPassword(password);
+        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedKey);          
         return reply(id,"SUCCESS", wallet.address);
         }
 
@@ -163,14 +176,18 @@ self.onmessage = async (event) => {
 
   case "IMPORT_SEED":{
     const {seed,password, name} = payload;
-    const wallet = new ethers.Wallet(seed.value, currentNetwork);
-    if((await getWallet(wallet.address)).payload === ""){
-      return reply(id, "WALLETALREADYHERE", "Wallet already created");
-    }
-    else{
+    const wallet = new ethers.Wallet(seed, currentNetwork);
+   const existingWallet = await storage.getWallet(wallet.address);
+if (existingWallet) {  // Check if it exists
+    return reply(id, "WALLETALREADYHERE", "Wallet already created");
+}else{
+
+
       const encryptedData = await encryptData(wallet.privateKey, password);
       const encryptedPassword = await encryptData(password, password);
-      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name);          
+      const hashedKey = await hashPassword(password);
+
+      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name,hashedKey);          
       return reply(id,"SUCCESS", wallet.address);
     }
 
@@ -181,6 +198,21 @@ self.onmessage = async (event) => {
     console.log(storage.currWallet);
     console.log(res);
     if(res == storage.currWallet.hashedKey){
+      return reply(id,"SUCCESS", "true");
+    }
+    else{
+      return reply(id, "FAIL", "false");
+    }
+  }
+
+    case "CHECK_PASS_ADDRESS":{
+    const {password,address} = payload; 
+    const res = await hashPassword(password);
+    const curr = await storage.getWallet(address);
+    console.log(curr);
+    console.log(res); 
+    console.log("NYA");
+    if(res == curr.hashedKey){
       return reply(id,"SUCCESS", "true");
     }
     else{
@@ -217,7 +249,9 @@ self.onmessage = async (event) => {
 };
 
 function reply(id, type, payload) {
+  console.log("Reply sending:", { id, type, payload });
   self.postMessage({ id, type, payload });
+  
 }
 
 function requireUnlocked() {

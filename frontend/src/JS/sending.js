@@ -80,7 +80,6 @@ export async function initSendingPage(){
         else{
             try {
             const tx = await sendTransaction(from, to, amount);
-            const save = window.sUtils.saveTransaction(tx,from.address,to, amount);
             console.log(tx); 
             alert('Transaction sent successfully!');
          } catch(err) {
@@ -128,7 +127,13 @@ async function sendTransaction(from, to, amountElement) {
             salt: objToUint8Array(walletData.ciphertext.salt),
         };
         console.log("encryptedData prepared for decryption:", encryptedData);
-        const receipt = await sendToWorker("SEND_TX", {encryptedData, password});
+        const passCheck = await sendToWorker("CHECK_PASS_ADDRESS", {password, address: walletData.address}); 
+        if(passCheck.type === "FAIL"){
+            alert("Incorrect password!");
+            return;
+        }
+        const value = amountElement.value;
+        const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value});
         if(receipt.type === "TX_SENT"){
             alert("Successfully sent the transaction!");
         }
@@ -159,7 +164,7 @@ async function sendTransaction(from, to, amountElement) {
   
   fromSelector.addEventListener('change', async (e) => {
     from = JSON.parse(e.target.value);
-    availableBalance.textContent = ethers.formatEther((await sendToWorker("GET_BALANCE")).payload);
+    availableBalance.textContent = (await sendToWorker("GET_BALANCE")).payload;
     selectedBalance.textContent = availableBalance.textContent;
     console.log(availableBalance.textContent);
     const x = availableBalance.textContent - amount.textContent; 
