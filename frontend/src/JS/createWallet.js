@@ -65,6 +65,7 @@ export async function initWalletCreation(){
            alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
         }
         const encryptedData = await encryptData(wallet.privateKey, passwordField.value);
+        const encryptedPassword = await encryptData(passwordField.value, passwordField.value);
         console.log('encrypt result', encryptedData);
         // support either { encryptedData, key } or { ciphertext, iv, salt, key }
 
@@ -75,11 +76,11 @@ export async function initWalletCreation(){
         console.log(window.sUtils);
         try{
             console.log(encryptedData.ciphertext);
-            console.log(encryptedData.password);
+            console.log(encryptedPassword.ciphertext);
 
 
 
-            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedData.password, nameField.value);
+            await window.sUtils.saveWallet(encryptedData, wallet.address, encryptedPassword, nameField.value);
             console.log(window.sUtils);
            const wallets =  await window.sUtils.updateWallets();
            const currWallet = await window.sUtils.updateCurrWallet(wallet);

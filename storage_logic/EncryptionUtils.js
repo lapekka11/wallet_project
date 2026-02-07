@@ -57,8 +57,7 @@ async function encryptData(data, password) {
     ciphertext: new Uint8Array(ciphertext),
     iv,
     authTag: new Uint8Array(authTag),
-    salt,
-    password:password
+    salt
   };
 }
  

@@ -3,6 +3,7 @@ let allWallets;
 let currWallet;
 let recentTransactions;
 let contactBook;
+import { encryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
@@ -39,11 +40,10 @@ export class StorageUtils{
         });
     }
 
-    async  saveWallet(ciphertext, address, key, name) {
+    async saveWallet(ciphertext, address, key,  name) {
         if (!this.db) throw new Error('DB not initialized');
         const tx = this.db.transaction('wallets', 'readwrite');
         const store = tx.objectStore('wallets');
-
         return new Promise((resolve, reject) => {
             const req = store.add({ address, ciphertext, key, name , createdAt: Date.now()});
             req.onsuccess = () => resolve(req.result);
@@ -168,10 +168,10 @@ export class StorageUtils{
         const store = tx.objectStore('wallets');
         return new Promise((resolve, reject) => {
             const req = store.get(address);
-            req.onsuccess = (e) => {
+            req.onsuccess = async (e) => {
                 const rec = e.target.result;
                 if (!rec) return resolve(false);
-                rec.key = newPassword;
+                rec.key = await encryptData(newPassword, newPassword); // Encrypt the new password with itself as the key
                 const putReq = store.put(rec);
                 putReq.onsuccess = () => resolve(true);
                 putReq.onerror = (err) => reject(err.target?.error || err);

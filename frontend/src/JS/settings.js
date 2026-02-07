@@ -1,5 +1,6 @@
 import {wallet, setWallet} from '/src/JS/dashboard.js';
 import {ethers} from 'ethers';
+import { decryptData } from '../../../storage_logic/EncryptionUtils';
 
 
 let selectedWallet = null;
@@ -79,7 +80,8 @@ export async function initSettingsPage(){
 
     changePW.addEventListener('click', async(e) =>{
         let verification = prompt("To change your password please input your old one: " , "password");
-        if(verification === wallet.key){
+        const password = await decryptData(wallet.key, verification);
+        if(verification === password){
             let newPW = prompt("Please enter your new Password: ", "newPassword");
             let req = await window.sUtils.changePassword(wallet.address,newPW);
             if(req){
@@ -104,14 +106,16 @@ export async function initSettingsPage(){
 
     unlock.addEventListener('click' , async(e) => {
        e.preventDefault();
+       const password= await decryptData(window.sUtils.currWallet.key, unlockPassword.value);
         if(locked){
-            if(unlockPassword.value === window.sUtils.currWallet.key){
+            if(unlockPassword.value === password){
                 lockScreen.style.display = "none";
             }     
             else{
                 alert("incorrect password");
             }       
         } 
+        location.reload();
     });
 
 
@@ -122,18 +126,7 @@ export async function initSettingsPage(){
             lockScreen.style.display = "flex";
     });
 
-    unlock.addEventListener('click' , async(e) => {
-        e.preventDefault();
-        if(locked){
-            if(unlockPassword.value === window.sUtils.currWallet.key){
-                lockScreen.style.display = "none";
-            }     
-            else{
-                alert("incorrect password");
-            }       
-        } 
-        location.reload();
-    });
+   
 
 }
 

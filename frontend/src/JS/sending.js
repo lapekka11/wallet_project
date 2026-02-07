@@ -129,6 +129,11 @@ async function sendTransaction(from, to, amountElement) {
         console.log("encryptedData prepared for decryption:", encryptedData);
         
         // Decrypt the private key using the password
+        const password1 = await decryptData(encryptedData.key, password);
+        if(password1 !== password){
+            alert("Incorrect password!");
+            location.reload();
+        }
         const privateKey = await decryptData(encryptedData, password);
         console.log("privateKEy decrypted");
         
