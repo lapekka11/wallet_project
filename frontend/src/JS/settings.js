@@ -1,7 +1,6 @@
 import {wallet, setWallet} from '/src/JS/dashboard.js';
 import {ethers} from 'ethers';
-import { decryptData } from '../../../storage_logic/EncryptionUtils';
-
+import {sendToWorker} from '../../main.js';
 
 let selectedWallet = null;
 let walletContainer;
@@ -23,7 +22,7 @@ export async function initSettingsPage(){
     const removeWalletBtn = document.getElementById("removeThisWalletBtn");
     const reset = document.getElementById("resetEverythingBtn");
     const lockWallet = document.getElementById("lockWalletBtn");
-    wallets = window.sUtils.wallets || await window.sUtils.getAllWallets();
+    wallets = (await sendToWorker("GET_ALL_WALLETS")).payload;
     const unlock = document.getElementById("unlockWallet");
     const lockScreen = document.getElementById("lock-overlay");
     const unlockPassword = document.getElementById("unlockPassword");
@@ -41,11 +40,11 @@ export async function initSettingsPage(){
     });
 
 
-   const currentNetwork = await window.sUtils.getNetwork();
+   const currentNetwork = (await sendToWorker("GET_NETWORK")).payload;
    networkSelect.value = currentNetwork; 
    networkSelect.addEventListener("change", async () => {
         const selected = networkSelect.value;
-        await window.sUtils.setNetwork(selected);
+        await sendToWorker("SET_NETWORK", selected);
         location.reload(); 
     });
 
@@ -55,7 +54,6 @@ export async function initSettingsPage(){
 
 
 
-    console.log(await window.provider.listAccounts());
     if(!wallet && wallets.length != 0){
          setWallet(wallets[0]);
     }
@@ -72,7 +70,7 @@ export async function initSettingsPage(){
 
     removeWalletBtn.addEventListener('click', async(e)=>{
         console.log("listening");
-        let prom = await window.sUtils.deleteWallet(wallet.address);
+        let prom = await sendToWorker("DELETE_WALLET", currentAddress);
         if(wallets.length != 1){
             
             setWallet(wallets[0]);
@@ -88,19 +86,23 @@ export async function initSettingsPage(){
     })
 
     reset.addEventListener('click', async (e) => {
-        let prompt = await window.sUtils.selfDestruct.clearDatabase();
+        let prompt = await sendToWorker("SELF_DESTRUCT");
         location.reload();
         window.router.navigate('/');
     } );
 
     changePW.addEventListener('click', async(e) =>{
         let verification = prompt("To change your password please input your old one: " , "password");
-        const password = await decryptData(wallet.key, verification);
-        if(verification === password){
+        const password = (await sendToWorker("CHECK_PASS",verification));
+
+        if(password.payload === "true"){
             let newPW = prompt("Please enter your new Password: ", "newPassword");
-            let req = await window.sUtils.changePassword(wallet.address,newPW);
+            let address = currentAddress.textContent;
+            console.log(address);
+            let req = await sendToWorker("CHANGE_PW", {address: address,password: newPW, oldPassword: verification});
             if(req){
                 alert("Password changed succesfully!");
+                location.reload();
             }
             else{
                 alert("Something went wrong. Try again later.");
@@ -139,7 +141,7 @@ function renderWallets() {
     }
     
     // Add click event
-    item.addEventListener('click', () => {
+    item.addEventListener('click', async(e) => {
       // Remove selection from all items
       document.querySelectorAll('.wallet-item').forEach(el => {
         el.classList.remove('selected');
@@ -150,7 +152,7 @@ function renderWallets() {
       
       // Update the selectedWallet variable
       selectedWallet = wl;
-      window.sUtils.updateCurrWallet(selectedWallet);
+      await sendToWorker("SET_CURRWALLET", wl.address);
       currentAddress.textContent = selectedWallet.address;
       
       

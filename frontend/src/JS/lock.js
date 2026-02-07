@@ -1,20 +1,22 @@
-import { decryptData } from "../../../storage_logic/EncryptionUtils";
+import { sendToWorker } from "../../main.js";
 
 export function initLockPage(){
     const unlock = document.getElementById('unlockWallet');
     const lockScreen = document.getElementById('lockScreen');
     const unlockPassword = document.getElementById('unlockPassword');
-                   console.log("niania" + window.sUtils.locked);
 
-    console.log(window.sUtils.getLocking());
- unlock.addEventListener('click' , async(e) => {
+     unlock.addEventListener('click' , async(e) => {
        e.preventDefault();
-       const password= await decryptData(window.sUtils.currWallet.key, unlockPassword.value);
-
-            if(unlockPassword.value === password){
-                document.cookie = "locked = false";
+       console.log(await sendToWorker("GET_CURRWALLET"));
+       const password= await sendToWorker("CHECK_PASS",unlockPassword.value);
+       
+            console.log(password);
+            if(password.payload === "true"){
+                document.cookie = "locked=false";
+                await sendToWorker("UNLOCK", unlockPassword.value);
                 window.router.navigate('/dashboard');            }     
             else{
+                            console.log("NAOAONAOAND" + password.payload);
                 alert("incorrect password");
             }       
         

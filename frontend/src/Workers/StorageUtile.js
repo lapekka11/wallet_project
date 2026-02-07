@@ -4,7 +4,7 @@ let currWallet;
 let recentTransactions;
 let contactBook;
 let locked = false;
-import { encryptData    } from "./EncryptionUtils";
+import { encryptData,decryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
@@ -41,12 +41,12 @@ export class StorageUtils{
         });
     }
 
-    async saveWallet(ciphertext, address, key,  name) {
+    async saveWallet(ciphertext, address, key,  name, hashedKey) {
         if (!this.db) throw new Error('DB not initialized');
         const tx = this.db.transaction('wallets', 'readwrite');
         const store = tx.objectStore('wallets');
         return new Promise((resolve, reject) => {
-            const req = store.add({ address, ciphertext, key, name , createdAt: Date.now()});
+            const req = store.add({ address, ciphertext, key, name , createdAt: Date.now(), hashedKey});
             req.onsuccess = () => resolve(req.result);
             req.onerror = (e) => reject(e.target.error);
         });
@@ -85,7 +85,7 @@ export class StorageUtils{
         });
     }
   
-  async  saveTransaction(txData, from, to, amountelem) {
+  async  saveTransaction(txData, from, to, amountelem, blockNumber) {
     
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(['transactions'], 'readwrite');
@@ -97,7 +97,8 @@ export class StorageUtils{
         addressTo:to,
         savedAt: Date.now(),
         timestamp: txData.timestamp || Date.now(),
-        amount: amountelem.value
+        amount: amountelem.value,
+        blockNumber: blockNumber || null
       };
       
       const request = store.put(txToSave);
@@ -184,24 +185,60 @@ export class StorageUtils{
             req.onerror = (e) => reject(e.target.error);
         });
     }
-
-    async changePassword(address, newPassword) {
-        if (!this.db) throw new Error('DB not initialized');
-        const tx = this.db.transaction('wallets', 'readwrite');
-        const store = tx.objectStore('wallets');
-        return new Promise((resolve, reject) => {
-            const req = store.get(address);
-            req.onsuccess = async (e) => {
-                const rec = e.target.result;
-                if (!rec) return resolve(false);
-                rec.key = await encryptData(newPassword, newPassword); // Encrypt the new password with itself as the key
-                const putReq = store.put(rec);
-                putReq.onsuccess = () => resolve(true);
-                putReq.onerror = (err) => reject(err.target?.error || err);
-            };
-            req.onerror = (err) => reject(err.target?.error || err);
-        });
+async changePassword(address, newPassword, oldPassword) {
+    if (!this.db) throw new Error('DB not initialized');
+    
+    // Get all wallets first (outside transaction)
+    const tx1 = this.db.transaction('wallets', 'readonly');
+    const store1 = tx1.objectStore('wallets');
+    
+    const allWallets = await new Promise((resolve, reject) => {
+        const req = store1.getAll();
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = (err) => reject(err.target.error);
+    });
+    
+    // Find the wallet
+    const wallet = allWallets.find(w => w.address === address);
+    if (!wallet) {
+        console.log("Wallet not found");
+        return false;
     }
+    
+    // Do all async work OUTSIDE any transaction
+    const newHashedKey = await hashPassword(newPassword);
+    console.log("new hashed key: ", newHashedKey);
+    
+    // Decrypt and re-encrypt
+    const decryptedData = await decryptData(wallet.ciphertext, oldPassword);
+    const reEncryptedData = await encryptData(decryptedData, newPassword);
+    console.log("re-encrypted data: ", reEncryptedData);
+    
+    // Update wallet object
+    const updatedWallet = {
+        ...wallet,
+        hashedKey: newHashedKey,
+        ciphertext: reEncryptedData
+    };
+    
+    // Now do the update in a NEW transaction
+    const tx2 = this.db.transaction('wallets', 'readwrite');
+    const store2 = tx2.objectStore('wallets');
+    
+    return new Promise((resolve, reject) => {
+        const putReq = store2.put(updatedWallet);
+        
+        putReq.onsuccess = () => {
+            console.log("Password changed successfully");
+            resolve(true);
+        };
+        
+        putReq.onerror = (err) => {
+            console.error("Failed to update wallet:", err.target.error);
+            reject(err.target.error);
+        };
+    });
+}
 
     async  updateWallets(){
     allWallets = await this.getAllWallets();
@@ -231,4 +268,20 @@ async getNetwork() {
 
 
     
+}
+
+
+async function hashPassword(password) {
+    // Convert password to byte array
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    
+    // Hash with SHA-256
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    
+    // Convert to hex string for storage
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
 }

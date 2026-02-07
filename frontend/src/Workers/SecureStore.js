@@ -11,7 +11,7 @@ export class SecureStore {
     init() {
         if (this.initPromise) return this.initPromise;
         this.initPromise = new Promise((resolve, reject) => {
-            const request = indexedDB.open(this.dbName, this.dbVersion);
+            const request = self.indexedDB.open(this.dbName, this.dbVersion);
 
             request.onupgradeneeded = (event) => {
                 const db = event.target.result;

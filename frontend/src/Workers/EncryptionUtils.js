@@ -1,11 +1,10 @@
-
 async function deriveKey(password, salt) {
     // Convert password string to ArrayBuffer
     const encoder = new TextEncoder();
     const passwordBuffer = encoder.encode(password);
     
     // Import the password as a raw key material
-    const importedKey = await window.crypto.subtle.importKey(
+    const importedKey = await crypto.subtle.importKey(
         "raw",
         passwordBuffer,
         { name: "PBKDF2" },
@@ -14,7 +13,7 @@ async function deriveKey(password, salt) {
     );
     
     // Derive the AES-GCM key from the password
-    const derivedKey = await window.crypto.subtle.deriveKey(
+    const derivedKey = await crypto.subtle.deriveKey(
         {
             name: "PBKDF2",
             salt: salt,
@@ -34,12 +33,12 @@ async function deriveKey(password, salt) {
 
  
 async function encryptData(data, password) {
-  const salt = window.crypto.getRandomValues(new Uint8Array(16)); // 128-bit salt
-  const iv = window.crypto.getRandomValues(new Uint8Array(12)); // 12 bytes for AES-GCM
+  const salt = crypto.getRandomValues(new Uint8Array(16)); // 128-bit salt
+  const iv = crypto.getRandomValues(new Uint8Array(12)); // 12 bytes for AES-GCM
   const key = await deriveKey(password, salt);
   const encodedData = new TextEncoder().encode(data);
  
-  const encryptedContent = await window.crypto.subtle.encrypt(
+  const encryptedContent = await crypto.subtle.encrypt(
     {
       name: "AES-GCM",
       iv,
@@ -109,7 +108,7 @@ async function decryptData(encryptedData, password) {
       keyLength: key.algorithm.length
     });
     
-    const decryptedContent = await window.crypto.subtle.decrypt(
+    const decryptedContent = await crypto.subtle.decrypt(
       { 
         name: "AES-GCM", 
         iv: iv,
@@ -157,13 +156,5 @@ async function decryptData(encryptedData, password) {
 //  return new TextDecoder().decode(decryptedContent);
 //}
 
- function evaluatePasswordStrength(password) {
-        let strength = 0;
-        if (password.length >= 8) strength++;
-        if (/[A-Z]/.test(password)) strength++;
-        if (/[0-9]/.test(password)) strength++;
-        if (/[^A-Za-z0-9]/.test(password)) strength++;
-        return strength;
-    }
 
-export {deriveKey, encryptData, decryptData, evaluatePasswordStrength};
+export {deriveKey, encryptData, decryptData};
