@@ -63,6 +63,8 @@ export async function initWalletCreation(){
         if(!prompt){
             
            alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
+           location.reload();
+           return;
         }
         const encryptedData = await encryptData(wallet.privateKey, passwordField.value);
         const encryptedPassword = await encryptData(passwordField.value, passwordField.value);
