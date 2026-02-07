@@ -12,6 +12,10 @@ let currentAddress;
 
 
 export async function initSettingsPage(){
+    if(document.cookie.includes("locked=true")) {
+        window.router.navigate('/locked');
+        return;
+    }
      currentAddress = document.getElementById("currentWalletAddress");
     const changePW = document.getElementById("changePasswordBtn");
     const addWallet = document.getElementById("addWalletBtn");
@@ -24,6 +28,17 @@ export async function initSettingsPage(){
     const lockScreen = document.getElementById("lock-overlay");
     const unlockPassword = document.getElementById("unlockPassword");
     const networkSelect = document.getElementById("networkSelect");
+    const copyAddressBtn = document.getElementById("copyAddressBtn");
+
+    copyAddressBtn.addEventListener('click', async() => {
+        if(wallet){
+            await navigator.clipboard.writeText(wallet.address);
+            alert("Address copied to clipboard!");
+        }
+        else{
+            alert("No wallet selected!");
+        }
+    });
 
 
    const currentNetwork = await window.sUtils.getNetwork();
@@ -95,35 +110,13 @@ export async function initSettingsPage(){
             alert("Wrong password Loser.");
         }
     });
-  let locked = false;
  lockWallet.addEventListener('click', async(e) => {
             e.preventDefault();
             console.log("nia");
-            lockScreen.style.display = "flex";
-            locked = true;
+            
+            document.cookie = "locked = true";
+            window.router.navigate('/locked');
 
-    });
-
-    unlock.addEventListener('click' , async(e) => {
-       e.preventDefault();
-       const password= await decryptData(window.sUtils.currWallet.key, unlockPassword.value);
-        if(locked){
-            if(unlockPassword.value === password){
-                lockScreen.style.display = "none";
-            }     
-            else{
-                alert("incorrect password");
-            }       
-        } 
-        location.reload();
-    });
-
-
-  
-    disconnectBtn.addEventListener('click', async(e) => {
-            e.preventDefault();
-            console.log("nia");
-            lockScreen.style.display = "flex";
     });
 
    
@@ -163,14 +156,11 @@ function renderWallets() {
       
       // You can now use selectedWallet elsewhere in your code
       console.log('Selected wallet:', selectedWallet);
-      
-      // Or trigger a custom event
-      const event = new CustomEvent('walletSelected', { 
-        detail: { wl: selectedWallet } 
-      });
-      walletContainer.dispatchEvent(event);
+      window.router.navigate('/dashboard');
+
     });
     
     walletContainer.appendChild(item);
+    
   });
 }

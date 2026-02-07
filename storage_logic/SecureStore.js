@@ -25,6 +25,7 @@ export class SecureStore {
                 if (!db.objectStoreNames.contains('preferences')) {
                     db.createObjectStore('preferences', { keyPath: 'id' });
                 }
+   
             };
 
             request.onsuccess = (event) => {

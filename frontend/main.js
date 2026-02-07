@@ -1,6 +1,6 @@
 // frontend/main.js
 import { Router } from '/src/JS/router.js';
-import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, ImportPage } from '/src/JS/index.js';
+import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, ImportPage, LockedPage } from '/src/JS/index.js';
 import {SecureStore} from '../storage_logic/SecureStore';
 import{ethers} from 'ethers';
 import { StorageUtils } from '../storage_logic/StorageUtile';
@@ -17,6 +17,7 @@ router.route('/dashboard', DashboardPage);
 router.route('/import' , ImportPage);
 router.route('/settings', SettingsPage);
 router.route('/send', SendingPage);
+router.route('/locked', LockedPage);
 
 // Simple 404 fallback
 const NotFoundPage = {
@@ -37,14 +38,7 @@ const networkKey = await window.sUtils.getNetwork();
 const network = NETWORKS[networkKey];
 const provider = new ethers.JsonRpcProvider(network.rpcUrl);
 window.provider = provider;
-// Hook CTA button (use querySelector for multi-class selector)
-const btn = document.querySelector('.btn.btn-primary.btn-large');
-if (btn) {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        router.navigate('/create');
-    });
-}
+
 
 // Make router available globally for navigation from anywhere
 window.router = router;

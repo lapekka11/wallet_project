@@ -8,6 +8,11 @@ import { getETHPriceFromAPI } from './config';
 
 
  export async function initDashboard(){
+
+    if(document.cookie.includes("locked=true")) {
+        window.router.navigate('/locked');
+        return;
+    }
      const balanceDisplay = document.getElementById('balanceDisplay');
      const fiatValue = document.getElementById('fiatValue');
      const transactionsList = document.getElementById('transactionsList');
@@ -85,28 +90,16 @@ if (!transactions.length) {
 
 
     
-    let locked = false;
     disconnectBtn.addEventListener('click', async(e) => {
             e.preventDefault();
             console.log("nia");
-            lockScreen.style.display = "flex";
-            locked = true;
+            document.cookie = "locked = true";
+            window.router.navigate('/locked');
 
 
     });
 
-    unlock.addEventListener('click' , async(e) => {
-        e.preventDefault();
-        if(locked){
-            if(unlockPassword.value === window.sUtils.currWallet.key){
-                location.reload();                
-            }     
-            else{
-                alert("incorrect password");
-            }       
-        } 
-        
-    });
+
 
     const rate = await getETHPriceFromAPI();
     console.log(rate);

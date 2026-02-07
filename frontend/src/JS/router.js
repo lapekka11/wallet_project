@@ -91,6 +91,9 @@ export class Router {
       case '/send':
         await import('/src/JS/sending.js').then(m => m.initSendingPage && m.initSendingPage());
         break;
+      case '/locked':
+        await import('/src/JS/lock.js').then(m => m.initLockPage && m.initLockPage());
+        break;
     }
 
   }

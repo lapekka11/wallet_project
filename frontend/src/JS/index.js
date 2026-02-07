@@ -246,15 +246,6 @@ export const SettingsPage ={
           </div>
         </div>
         
-        <div class="security-item">
-          <div class="security-info">
-            <h4>Backup & Recovery</h4>
-            <p>View your seed phrase or export backup</p>
-          </div>
-          <div class="security-actions">
-            <button id="exportBackupBtn" class="btn btn-secondary">Export Backup</button>
-          </div>
-        </div>
         
         <div class="security-item">
           <div class="security-info">
@@ -292,10 +283,6 @@ export const SettingsPage ={
           <div class="preference-control">
             <select id="currencySelect" class="form-select">
               <option value="USD">USD ($)</option>
-              <option value="EUR">EUR (€)</option>
-              <option value="GBP">GBP (£)</option>
-              <option value="JPY">JPY (¥)</option>
-              <option value="ETH">ETH</option>
             </select>
           </div>
         </div>
@@ -484,29 +471,7 @@ export const SettingsPage ={
   </div>
 </div>
 
-    <!-- Lock Screen Overlay -->
-<div id="lock-overlay" class="lock-overlay" style="display: none;">
-  <div class="lock-modal">
-    <h2>🔒 Wallet Locked</h2>
-    <p>Enter your password or private key to unlock.</p>
-
-    <form class="lock-form">
-      <div class="form-group">
-        <label for="unlockPassword">Password</label>
-        <input
-          type="password"
-          id="unlockPassword"
-          placeholder="Enter your password"
-        />
-      </div>
-      </div>
-
-      <button id="unlockWallet" class="btn btn-primary btn-large">
-        Unlock Wallet
-      </button>
-    </form>
-  </div>
-</div>`,
+ `,
  init: async () => {
     console.log('SettingsPage loaded');
     const { initSettingsPage } = await import('./settings.js');
@@ -1226,5 +1191,37 @@ export const SendingPage = {
     console.log('SendingPage loaded');
     const { initSendingPage } = await import('./sending.js');
     initSendingPage();
+  }
+}
+
+export const LockedPage = {
+ template : `<head>
+      <link rel="stylesheet" href="/src/CSS/lock.css">
+    </head>
+    <div id="lock-overlay" class="lock-overlay" style="display: flex;">
+      <div class="lock-modal">
+        <h2>🔒 Wallet Locked</h2>
+        <p>Enter your password or private key to unlock.</p>
+
+        <form class="lock-form">
+          <div class="form-group">
+            <label for="unlockPassword">Password</label>
+            <input
+              type="password"
+              id="unlockPassword"
+              placeholder="Enter your password"
+            />
+          </div>
+
+          <button id="unlockWallet" class="btn btn-primary btn-large">
+            Unlock Wallet
+          </button>
+        </form>
+      </div>
+    </div>`, 
+init: async () => {
+    console.log('Locked loaded');
+    const { initLockPage } = await import('./lock.js');
+    initLockPage();
   }
 }

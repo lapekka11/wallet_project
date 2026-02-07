@@ -3,10 +3,12 @@ let allWallets;
 let currWallet;
 let recentTransactions;
 let contactBook;
+let locked = false;
 import { encryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
+        
 
     }
 
@@ -14,8 +16,7 @@ export class StorageUtils{
        if (this.initialized) {
             return this.db;
         }
-        
-        this.selfDestruct = this.db;
+        locked = false;
         this.db = await this.db.init(); 
         
         this.initialized = true;
@@ -57,6 +58,28 @@ export class StorageUtils{
         const store = tx.objectStore('wallets');
         return new Promise((resolve, reject) => {
             const req = store.getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+      async  getLocking() {
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('locking', 'readonly');
+        const store = tx.objectStore('locking');
+        return new Promise((resolve, reject) => {
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = (e) => reject(e.target.error);
+        });
+    }
+
+    async setLocking(value) {
+        if (!this.db) throw new Error('DB not initialized');
+        const tx = this.db.transaction('locking', 'readwrite');
+        const store = tx.objectStore('locking');
+        return new Promise((resolve, reject) => {
+            const req = store.update({id: 0, value: value});
             req.onsuccess = () => resolve(req.result);
             req.onerror = (e) => reject(e.target.error);
         });
@@ -205,6 +228,7 @@ async setNetwork(networkKey) {
 async getNetwork() {
   return (await this.getPreference("selectedNetwork")) || "localhost";
 }
+
 
     
 }

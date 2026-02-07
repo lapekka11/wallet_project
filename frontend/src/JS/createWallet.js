@@ -59,7 +59,7 @@ export async function initWalletCreation(){
         const wallet = ethers.Wallet.createRandom().connect(window.provider);
 
         let seedPhrase = wallet.mnemonic.phrase;
-        let prompt = confirm('Your seed phrase (write it down and keep it safe): \n'+ seedPhrase);
+        let prompt = confirm('Your seed phrase: \n'+ seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
         if(!prompt){
             
            alert('Wallet Creation cancelled. Please make sure to back up your seed phrase next time.');
