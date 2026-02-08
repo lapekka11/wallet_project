@@ -43,14 +43,12 @@ self.onmessage = async (event) => {
         const password = payload.key;
         if (!wallets.length) throw new Error("No wallets stored");
         console.log("Wallets available for unlocking:", wallets.map(w => w.address));
-        console.log(currlockedWallet);
-        const walletRecord = await storage.getWallet(currlockedWallet);
+        console.log(storage.currWallet);
+        const walletRecord = storage.currWallet;
         console.log("decrypting wallet with address:", currlockedWallet);
         const decrypted = await decryptData(walletRecord.ciphertext, password);
         console.log("decryption result:", decrypted);
-        unlockedWallet = new ethers.Wallet(decrypted, provider);
-
-        return reply(id, "UNLOCK_OK", { address: unlockedWallet.address });
+        return reply(id, "UNLOCK_OK", { address: walletRecord.address });
       }
 
       case "LOCK": {
@@ -118,6 +116,7 @@ self.onmessage = async (event) => {
         const encryptedPassword = await encryptData(password, password);
         const hashedPassword = await hashPassword(password);
         await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedPassword);
+        storage.currWallet = wallet;
         console.log("Wallet saved with address: ", wallet.address);
         return reply(id, "WALLET_SAVED",{address: wallet.address, mnemonic: wallet.mnemonic} );
       }
@@ -132,9 +131,17 @@ self.onmessage = async (event) => {
         }
       }
       case "GET_CURRWALLET" :{
-        const result = storage.currWallet;
+        let result = storage.currWallet;
         if(!result){
-          result = storage.wallets[0];
+          try{
+            const wallets = await storage.getAllWallets();
+            result = wallets[0];
+            storage.currWallet = wallets[0]
+          }
+          catch(e){
+            result = null;
+            return reply(id, "CURRWALLETFAIL", result);
+          }
           
         }
         return reply(id,"CURRWALLET",result);
@@ -162,14 +169,15 @@ self.onmessage = async (event) => {
         const wallet = new ethers.Wallet(seed,currentNetwork);
            const existingWallet = await storage.getWallet(wallet.address);
 
-       if (existingWallet) {  // Check if it exists
-    return reply(id, "WALLETALREADYHERE", "Wallet already created");
-}
+        if (existingWallet) {  // Check if it exists
+         return reply(id, "WALLETALREADYHERE", "Wallet already created");
+        }
         else{
         const encryptedData = await encryptData(wallet.privateKey, password);
         const encryptedPassword = await encryptData(password, password);
         const hashedKey = await hashPassword(password);
-        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedKey);          
+        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedKey);  
+        storage.currWallet = wallet;          
         return reply(id,"SUCCESS", wallet.address);
         }
 
@@ -178,17 +186,16 @@ self.onmessage = async (event) => {
   case "IMPORT_SEED":{
     const {seed,password, name} = payload;
     const wallet = new ethers.Wallet(seed, currentNetwork);
-   const existingWallet = await storage.getWallet(wallet.address);
-if (existingWallet) {  // Check if it exists
-    return reply(id, "WALLETALREADYHERE", "Wallet already created");
-}else{
-
-
+    const existingWallet = await storage.getWallet(wallet.address);
+    if (existingWallet) {  // Check if it exists
+     return reply(id, "WALLETALREADYHERE", "Wallet already created");
+    }
+    else{
       const encryptedData = await encryptData(wallet.privateKey, password);
       const encryptedPassword = await encryptData(password, password);
       const hashedKey = await hashPassword(password);
-
-      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name,hashedKey);          
+      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name,hashedKey);         
+      storage.currWallet = wallet; 
       return reply(id,"SUCCESS", wallet.address);
     }
 
@@ -224,6 +231,7 @@ if (existingWallet) {  // Check if it exists
   case "DELETE_WALLET":{
     const address = payload;
     const res = await storage.deleteWallet(address);
+    storage.currWallet = (await storage.getAllWallets())[0] || null;
     return reply(id, "succ");
   };
   

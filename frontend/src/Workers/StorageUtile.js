@@ -1,6 +1,6 @@
 import SecureStore from "./SecureStore"
 let allWallets;
-let currWallet;
+let currWallet = null;
 let recentTransactions;
 let contactBook;
 let locked = false;

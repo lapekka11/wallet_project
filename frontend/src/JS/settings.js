@@ -70,7 +70,8 @@ export async function initSettingsPage(){
 
     removeWalletBtn.addEventListener('click', async(e)=>{
         console.log("listening");
-        let prom = await sendToWorker("DELETE_WALLET", currentAddress);
+        const addy = currentAddress.textContent;
+        let prom = await sendToWorker("DELETE_WALLET", addy);
         if(wallets.length != 1){
             
             setWallet(wallets[0]);

@@ -13,6 +13,12 @@ import{sendToWorker} from '../../main.js';
         window.router.navigate('/locked');
         return;
     }
+    const currentCheck = (await sendToWorker("GET_CURRWALLET")).payload;
+    if(!currentCheck){
+      alert("No wallets found, please create one to get started!");
+      window.router.navigate("/create");
+      return;
+    }
 
      const balanceDisplay = document.getElementById('balanceDisplay');
      const fiatValue = document.getElementById('fiatValue');
