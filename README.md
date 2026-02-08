@@ -47,16 +47,24 @@ This is a simple, client-side webapp I built using **JavaScript**, **Web Workers
 
 ## Screenshots
 
-*(Optional — add screenshots here later)*
+![homepage](readmeSS/first.png)  
+![creationPage](readmeSS/second.png)
+![importPage](readmeSS/third.png)
+![Dashboard](readmeSS/fourth.png)
+![sendingPage](readmeSS/fifth.png)
+![settingsPage](readmeSS/sixth.png)
+
+
+
 
 ---
 
-## 🧪 Getting Started
+## Getting Started
 
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/lapekka11/wallet_project.git
-cd crypto-wallet-app
+cd wallet_project
 ```
 ### 2. Install Dependencies
 ```bash

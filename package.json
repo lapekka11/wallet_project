@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
      "dev": "npm-run-all --parallel hardhat:node frontend:dev",
-    "hardhat:node": "cd contracts && npx hardhat node --port 9545",
-    "hardhat:compile": "cd contracts && npx hardhat compile",
-    "hardhat:deploy": "cd contracts && npx hardhat run scripts/deploy.ts --network localhost",
+    "hardhat:node": "npx hardhat node --port 9545",
+    "hardhat:compile": "npx hardhat compile",
+    "hardhat:deploy": "npx hardhat run scripts/deploy.ts --network localhost",
     "frontend:dev": "vite",
     "frontend:build": "vite build",
     "setup": "npm install && cd contracts && npm install",
