@@ -30,12 +30,12 @@ async function initWorker() {
         worker.terminate();
         pending.clear(); // Clear any pending promises
     }
-    
+    console.log("hello")
     // Create worker with correct path
     worker = new Worker(new URL('./src/Workers/Worker.js', import.meta.url), { 
         type: 'module' 
     });
-    
+    console.log("hello2");
     // Set up message handler
     worker.onmessage = (event) => {
         const { id, type, payload } = event.data;
@@ -45,6 +45,7 @@ async function initWorker() {
             console.warn('No resolver for message id:', id);
             return;
         }
+        console.log("hello3");
         
         pending.delete(id);
 
@@ -85,9 +86,12 @@ async function initWorker() {
         }, 10000); // 10 second timeout for worker init
         
         worker.addEventListener('message', listener);
-        worker.postMessage({ id: 'init', type: 'INIT' });
+        worker.postMessage({  type: 'INIT' });
+        
     });
 }
+
+
 
 // Initialize on page load
 window.addEventListener('load', async () => {

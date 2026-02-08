@@ -20,8 +20,17 @@ export async function initSendingPage(){
     const remainingBalance = document.getElementById("remainingBalance");
     const sendBtn = document.getElementById("sendBtn");
     const recentRecipient = document.getElementById("recentRecipientsBtn");
+    const totalCostText = document.getElementById("totalCost");
+    const gasEstimate = document.getElementById("gasEstimate");
+    const slowButton = document.getElementById("slowBtn");
 
+
+    let txSpeed = 1.0;
+    let gasLimit = 0.0;
+    let maxFeePerGas = 0.0;
+    let maxPriorityFeePerGas = 0.0;
     const rate = await getETHPriceFromAPI();
+    let prevButton = normalButton;
 
     exchangeRate.textContent =( "1 ETH = $" + rate);
     
@@ -46,16 +55,48 @@ export async function initSendingPage(){
   }
     });
 
-   amount.addEventListener('input', async(e) => {
-    const availableBalanceNum = parseFloat(availableBalance.textContent);
-    const amountValue = parseFloat(amount.value); 
-    const remaining = (availableBalanceNum - amountValue > availableBalanceNum ? 0 : availableBalanceNum - amountValue);
-
     
-    remainingBalance.textContent = (remaining >= 0 ? remaining : 0) + ' ETH';
-    fiatValue.textContent = "≈ $"+ (amountValue * rate >= 0 ? amountValue*rate : 0) ; 
+
+    slowButton.addEventListener('click', async(e) => {
+        const amountValue = parseFloat(amount.value);
+        txSpeed = 80.0/100.0;
+        prevButton.className="gas-btn";
+        slowButton.className="gas-btn active";
+        prevButton = slowButton;
+    alterCurrencyValues(maxFeePerGas,txSpeed,gasLimit,gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate);
+
+    });
+    normalButton.addEventListener('click', async(e) => {
+        const amountValue = parseFloat(amount.value);
+        prevButton.className="gas-btn";
+        normalButton.className="gas-btn active";
+        prevButton = normalButton;
+        txSpeed = 1.0;
+            alterCurrencyValues(maxFeePerGas,txSpeed,gasLimit,gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate);
+
+    });
+    fastButton.addEventListener('click', async(e) => {
+        const amountValue = parseFloat(amount.value);
+        prevButton.className="gas-btn";
+        fastButton.className="gas-btn active";;
+        prevButton = fastButton;
+        txSpeed = 120.0/100.0;
+            alterCurrencyValues(maxFeePerGas,txSpeed,gasLimit,gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate);
+
+    });
+
+   amount.addEventListener('change', async(e) => {
+    const amountValue = parseFloat(amount.value);
+    const gasData = (await sendToWorker("ESTIMATE_GAS", {to,amountValue})).payload;
+    gasLimit = gasData.gasLimit;
+    maxFeePerGas = gasData.maxFeePerGas;
+    maxPriorityFeePerGas = gasData.maxPriorityFeePerGas;
+    console.log("GASES: " , gasLimit, maxFeePerGas, maxPriorityFeePerGas);
+    alterCurrencyValues(maxFeePerGas,txSpeed,gasLimit,gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate);
+    
 });
 
+    
     sendBtn.addEventListener('click' , async(e) => {
             e.preventDefault();
             console.log('Send button clicked');
@@ -79,7 +120,7 @@ export async function initSendingPage(){
         }
         else{
             try {
-            const tx = await sendTransaction(from, to, amount);
+            const tx = await sendTransaction(from, to, amount,gasLimit,maxFeePerGas,maxPriorityFeePerGas);
             console.log(tx); 
             alert('Transaction sent successfully!');
          } catch(err) {
@@ -89,6 +130,12 @@ export async function initSendingPage(){
         }
        
     });
+
+
+   
+
+    
+
 
     document.getElementById("previewBtn").addEventListener("click", () => {
   document.getElementById("inlineFrom").textContent = from.address;
@@ -103,8 +150,6 @@ export async function initSendingPage(){
 
 
 
-}
-
  const objToUint8Array = (obj) => {
             if (!obj) return new Uint8Array();
             if (obj instanceof Uint8Array) return obj;
@@ -112,7 +157,7 @@ export async function initSendingPage(){
             return new Uint8Array(Object.values(obj));
         };
 
-async function sendTransaction(from, to, amountElement) {
+async function sendTransaction(from, to, amountElement, gasLimit, maxFeePerGas, maxPriorityFeePerGas) {
     try {
         // Ask for password to decrypt
         const password = prompt("Enter your wallet password to sign transaction:");
@@ -134,7 +179,7 @@ async function sendTransaction(from, to, amountElement) {
         }
         const value = amountElement.value;
         console.log(value);
-        const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value});
+        const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value,gasLimit,maxFeePerGas,maxPriorityFeePerGas});
         if(receipt.type === "TX_SENT"){
             alert("Successfully sent the transaction!");
         }
@@ -146,6 +191,7 @@ async function sendTransaction(from, to, amountElement) {
         console.error('Transaction failed:', err);
         throw err;
     }
+
 }
 
 
@@ -165,7 +211,8 @@ async function sendTransaction(from, to, amountElement) {
   
   fromSelector.addEventListener('change', async (e) => {
     from = JSON.parse(e.target.value);
-    availableBalance.textContent = (await sendToWorker("GET_BALANCE")).payload;
+    console.log("changing to " + from);
+    availableBalance.textContent = (await sendToWorker("GET_BALANCE_SPEC",from.address)).payload;
     selectedBalance.textContent = availableBalance.textContent;
     console.log(availableBalance.textContent);
     const x = availableBalance.textContent - amount.textContent; 
@@ -174,3 +221,22 @@ async function sendTransaction(from, to, amountElement) {
     currWalletTransactions = (await sendToWorker("GET_TXS"));
   });
 }
+
+function alterCurrencyValues(maxFeePerGas, txSpeed, gasLimit, gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate){
+    console.log("VALUES: ",maxFeePerGas, txSpeed, gasLimit, gasEstimate,availableBalance,totalCostText,remainingBalance,fiatValue,amountValue,rate);
+    maxFeePerGas = maxFeePerGas * txSpeed;
+    
+    const gasCostWei = BigInt(gasLimit) * BigInt(maxFeePerGas);
+    const gasCostETH = ethers.formatEther(gasCostWei);
+    console.log(gasCostETH);
+
+    gasEstimate.textContent = gasCostETH;
+    const availableBalanceNum = parseFloat(availableBalance.textContent);
+
+    const totalCost = amountValue + parseFloat(gasCostETH);
+    totalCostText.textContent = (totalCost >= 0 ? totalCost : 0)+ ' ETH' ;
+
+    const remaining = availableBalanceNum - totalCost;    
+    remainingBalance.textContent = (remaining >= 0 ? remaining : availableBalanceNum) + ' ETH';
+    fiatValue.textContent = "≈ $"+ (amountValue * rate >= 0 ? amountValue*rate : 0) ; 
+}}

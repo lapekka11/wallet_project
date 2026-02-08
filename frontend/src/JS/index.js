@@ -135,7 +135,6 @@ export const DashboardPage = {
         
         <div class="actions-row">
           <button id="sendBtn" class="action-btn">Send</button>
-          <button id="buyBtn" class="action-btn">Buy</button>
         </div>
         
         <div class="transactions-section">
@@ -842,12 +841,7 @@ export const SendingPage = {
             </div>
           </div>
           
-          <div class="amount-actions">
-            <button type="button" class="amount-btn" data-percent="25">25%</button>
-            <button type="button" class="amount-btn" data-percent="50">50%</button>
-            <button type="button" class="amount-btn" data-percent="75">75%</button>
-            <button type="button" class="amount-btn" data-percent="100">MAX</button>
-          </div>
+          
           
           <div class="fiat-conversion">
             <span id="fiatValue">≈ $0.00</span>
@@ -859,6 +853,14 @@ export const SendingPage = {
           <div class="balance-row">
             <span>Available:</span>
             <span id="availableBalance">-- ETH</span>
+          </div>
+          <div class="balance-row">
+            <span>Estimated Gas Fee:</span>
+            <span id="gasEstimate">-- ETH</span>
+          </div>
+          <div class="balance-row">
+            <span>Total Cost:</span>
+            <span id="totalCost">-- ETH</span>
           </div>
           <div class="balance-row">
             <span>Remaining after send:</span>
@@ -874,12 +876,15 @@ export const SendingPage = {
       <div class="form-section advanced-section">
         <div class="advanced-header">
           <h3 class="section-title">
-            ⚙️ Advanced Options
+            Advanced Gas Options
           </h3>
-          <button type="button" id="toggleAdvanced" class="btn-small">
-            Show
-          </button>
         </div>
+      <div class="gas-speed-buttons">
+        <button id= "slowBtn" type="button" class="gas-btn" data-speed="slow">Slow</button>
+        <button id="normalBtn" type="button" class="gas-btn active" data-speed="normal">Normal</button>
+        <button id="fastBtn" type="button" class="gas-btn" data-speed="fast">Fast</button>
+      </div>
+
         
         <div id="advancedOptions" class="advanced-options" style="display: none;">
           <!-- Gas Settings -->

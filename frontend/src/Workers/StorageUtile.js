@@ -4,11 +4,14 @@ let currWallet = null;
 let recentTransactions;
 let contactBook;
 let locked = false;
+let store = null;
+let initialized = false;
 import{ethers} from 'ethers';
 import { encryptData,decryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
+    
         
 
     }
@@ -18,6 +21,7 @@ export class StorageUtils{
             return this.db;
         }
         locked = false;
+        this.store = this.db;
         this.db = await this.db.init(); 
         
         this.initialized = true;
@@ -28,6 +32,11 @@ export class StorageUtils{
         this.contactBook = [];
 
         return this.db; 
+    }
+
+    async clearDatabase(){
+
+        this.db = this.store.clearDatabase();
     }
 
 
@@ -307,3 +316,4 @@ async function hashPassword(password) {
     
     return hashHex;
 }
+

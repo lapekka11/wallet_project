@@ -57,8 +57,9 @@ export class SecureStore {
       req.onsuccess = () => {
         console.log(`Database ${this.dbName} deleted`);
         this.initPromise = null;
-        this.db1 = null;
-        resolve();
+        this.db1 = new SecureStore();
+        const newDb = this.db1.init();
+        resolve(newDb);
       };
       req.onerror = (e) => reject(e.target.error);
       req.onblocked = () => {

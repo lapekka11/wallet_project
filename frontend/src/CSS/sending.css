@@ -334,27 +334,7 @@
   font-weight: 600;
 }
 
-.amount-actions {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 15px;
-}
 
-.amount-btn {
-  flex: 1;
-  padding: 10px;
-  background: #1e293b;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  color: #94a3b8;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-.amount-btn:hover {
-  background: #334155;
-  color: white;
-}
 
 .fiat-conversion {
   display: flex;
@@ -931,3 +911,31 @@
     grid-template-columns: 1fr;
   }
 }
+
+.gas-speed-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.gas-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #2d2d2d;
+  background: #121212;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.gas-btn:hover {
+  background: #1f1f1f;
+}
+
+.gas-btn.active {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+

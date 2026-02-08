@@ -71,6 +71,13 @@ self.onmessage = async (event) => {
         return reply(id, "BALANCE", ethers.formatEther(balance));
       }
 
+        case "GET_BALANCE_SPEC": {
+        const address = payload;
+        requireUnlocked();
+        const balance = await provider.getBalance(address);
+        return reply(id, "BALANCE", ethers.formatEther(balance));
+      }
+
       case "GET_TXS": {
         requireUnlocked();
         const txs = await storage.getTransactionsByAddress(unlockedWallet.address);
@@ -79,7 +86,7 @@ self.onmessage = async (event) => {
 
       case "SEND_TX": {
         requireUnlocked();
-        const {encryptedData, password, to, value} = payload;
+        const {encryptedData, password, to, value, gasLimit, maxFeePerGas, maxPriorityFeePerGas} = payload;
 
         const privateKey = await decryptData(encryptedData, password);
         console.log("privateKEy decrypted");
@@ -91,7 +98,10 @@ self.onmessage = async (event) => {
         // Send transaction
         const tx = await wallet.sendTransaction({
             to: to,
-            value: ethers.parseEther(value)
+            value: ethers.parseEther(value),
+            gasLimit,
+            maxFeePerGas,
+            maxPriorityFeePerGas
         });
         
         console.log('Transaction sent:', tx.hash);
@@ -247,6 +257,26 @@ self.onmessage = async (event) => {
     const x = await storage.changePassword(address,password, oldPassword);
     return reply(id, "PW_CHANGED");
   }
+
+  case "ESTIMATE_GAS": {
+  requireUnlocked();
+  const { to, value } = payload;
+
+  const tx = {
+    to,
+    value,
+  };
+
+  const gasLimit = await provider.estimateGas(tx);
+  const feeData = await provider.getFeeData();
+
+  return reply(id, "GAS_ESTIMATE", {
+    gasLimit: gasLimit.toString(),
+    maxFeePerGas: feeData.maxFeePerGas?.toString(),
+    maxPriorityFeePerGas: feeData.maxPriorityFeePerGas?.toString(),
+  });
+}
+
 
     default:
       throw new Error(`Unknown command: ${type}`);
