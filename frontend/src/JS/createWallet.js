@@ -79,9 +79,10 @@ export async function initWalletCreation(){
     console.log("Wallet creation response received:", receipt);
     
     let seedPhrase = receipt.payload.mnemonic;
+    console.log(seedPhrase);
     console.log("Seed phrase extracted");
     
-    let prompt = confirm('Your seed phrase: \n' + seedPhrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
+    let prompt = confirm('Your seed phrase: \n' + seedPhrase.phrase + "\n Write it down and keep it safe while we generate your wallet. It may take a second...");
     
     console.log("About to show wallet address confirm");
     confirm('Wallet Created successfully! Your wallet address is: ' + receipt.payload.address);
