@@ -133,13 +133,14 @@ async function sendTransaction(from, to, amountElement) {
             return;
         }
         const value = amountElement.value;
+        console.log(value);
         const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value});
         if(receipt.type === "TX_SENT"){
             alert("Successfully sent the transaction!");
         }
         // Decrypt the private key using the password
         
-        return tx.hash;
+        return receipt.receipt;
         
     } catch (err) {
         console.error('Transaction failed:', err);

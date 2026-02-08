@@ -104,10 +104,11 @@ self.onmessage = async (event) => {
           receipt,
           wallet.address,
           payload.to,
-          payload.value
+          value
         );
+        let x = ethers.parseEther(value);
 
-        return reply(id, "TX_SENT", receipt);
+        return reply(id, "TX_SENT", {rec: receipt, to: payload.to, from: wallet.address, value: x});
       }
 
       case "SAVE_WALLET": {

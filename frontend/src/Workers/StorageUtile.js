@@ -4,6 +4,7 @@ let currWallet;
 let recentTransactions;
 let contactBook;
 let locked = false;
+import{ethers} from 'ethers';
 import { encryptData,decryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
@@ -93,14 +94,13 @@ export class StorageUtils{
     return new Promise((resolve, reject) => {
       const transaction = this.db.transaction(['transactions'], 'readwrite');
       const store = transaction.objectStore('transactions');
-      
       const txToSave = {
         
         addressFrom: from,
         addressTo:to,
         savedAt: Date.now(),
         timestamp: txData.timestamp || Date.now(),
-        amount: amountelem.value,
+        amount: amountelem,
         blockNumber: blockNumber || null
       };
       

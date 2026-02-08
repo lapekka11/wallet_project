@@ -67,7 +67,7 @@ if (!transactions.length) {
 } else {
   transactions.forEach(tx => {
     const row = document.createElement('div');
-
+    console.log(tx);
     row.innerHTML = `
       <span>${'From: ',tx.addressFrom || 'From: '}</span>
       <span>${'To: ',tx.addressTo || 'To: '}</span>
