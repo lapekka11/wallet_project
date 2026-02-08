@@ -227,32 +227,9 @@ export const SettingsPage ={
           </div>
           <button id="changePasswordBtn" class="btn btn-secondary">Change</button>
         </div>
+                
         
-        <div class="security-item">
-          <div class="security-info">
-            <h4>Auto-lock Timer</h4>
-            <p>Automatically lock wallet after inactivity</p>
-          </div>
-          <div class="security-control">
-            <select id="autoLockSelect" class="form-select">
-              <option value="1">1 minute</option>
-              <option value="5" selected>5 minutes</option>
-              <option value="15">15 minutes</option>
-              <option value="30">30 minutes</option>
-              <option value="60">1 hour</option>
-              <option value="0">Never (not recommended)</option>
-            </select>
-          </div>
-        </div>
-        
-        
-        <div class="security-item">
-          <div class="security-info">
-            <h4>Session Management</h4>
-            <p>Manage active sessions and devices</p>
-          </div>
-          <button id="manageSessionsBtn" class="btn btn-secondary">Manage</button>
-        </div>
+      
       </div>
     </div>
     
@@ -269,7 +246,7 @@ export const SettingsPage ={
             <select id="networkSelect" class="form-select">
               <option value="ethereum">Ethereum Mainnet</option>
               <option value="sepolia" >Sepolia Testnet</option>
-              <option value="localhost" selected >Localhost</option>
+              <option value="localhost" selected>Localhost</option>
             </select>
           </div>
         </div>
@@ -373,7 +350,7 @@ export const SettingsPage ={
           <div class="app-info">
             <h3>My Crypto Wallet</h3>
             <p class="version" id="appVersion">Version 1.0.0</p>
-            <p class="build" id="buildInfo">Build #12345 • Last updated: Jan 15, 2024</p>
+            <p class="build" id="buildInfo">Build #12345 • Last updated: Feb 8, 2026</p>
           </div>
           
           <div class="support-links">
@@ -385,14 +362,14 @@ export const SettingsPage ={
           </div>
           
           <div class="external-links">
-            <a href="https://github.com" target="_blank" class="external-link">🐙 GitHub</a>
-            <a href="https://twitter.com" target="_blank" class="external-link">🐦 Twitter</a>
+            <a href="https://github.com/lapekka11/wallet_project" target="_blank" class="external-link">🐙 GitHub</a>
+            <a href="https://twitter.com" target="_blank" class="external-link">🐦 X</a>
             <a href="https://discord.com" target="_blank" class="external-link">💬 Discord</a>
           </div>
           
           <div class="credits">
-            <p>Built with ❤️ using <strong>ethers.js</strong> and <strong>Vite</strong></p>
-            <p class="copyright">© 2024 My Crypto Wallet. All rights reserved.</p>
+            <p>Built using <strong>ethers.js</strong> and <strong>Vite</strong></p>
+            <p class="copyright">© 2026 MetaClone. No rights reserved.</p>
           </div>
         </div>
       </div>

@@ -11,9 +11,6 @@ import { encryptData,decryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
-    
-        
-
     }
 
     async init(){

@@ -35,7 +35,11 @@ self.onmessage = async (event) => {
       }
 
       case "GET_NETWORK":{
-        return reply(id,"NETWORK_SET", provider);
+        return reply(id,"NETWORK_SET", {provier});
+      }
+
+      case "GET_NETWORK_NAME":{
+        return reply(id,"NETWORK_NAME", currentNetwork);
       }
 
       case "UNLOCK": {
@@ -195,7 +199,7 @@ self.onmessage = async (event) => {
 
   case "IMPORT_SEED":{
     const {seed,password, name} = payload;
-    const wallet = new ethers.Wallet(seed, currentNetwork);
+    const wallet = ethers.Wallet.fromPhrase(seed, currentNetwork);
     const existingWallet = await storage.getWallet(wallet.address);
     if (existingWallet) {  // Check if it exists
      return reply(id, "WALLETALREADYHERE", "Wallet already created");

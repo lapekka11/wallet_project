@@ -1,57 +1,72 @@
-# Sample Hardhat 3 Beta Project (`mocha` and `ethers`)
+# Metaclone: A Crypto Wallet Web App
 
-This project showcases a Hardhat 3 Beta project using `mocha` for tests and the `ethers` library for Ethereum interactions.
+This is a simple, client-side webapp I built using **JavaScript**, **Web Workers**, and **IndexedDB** for storage. This project demonstrates the basics of secure key management, blockchain interaction via **ethers.js**, and a nice start for my portfolio.
 
-To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
+> This project is for educational and portfolio use only. Do NOT use it to manage real funds, I do not take accountability for possible security issues.
 
-## Project Overview
+---
 
-This example project includes:
+## Features
 
-- A simple Hardhat configuration file.
-- Foundry-compatible Solidity unit tests.
-- TypeScript integration tests using `mocha` and ethers.js
-- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
+- **Secure Wallet Storage**
+  - Private keys encrypted using Web Crypto API.
+  -     Namely, PBKDF and AES-GCM with passwords being hashed for storage and authentication purposes.
+  - Wallets stored securely in an IndexedDB instance
+  - Password-based encryption and verification
 
-## Usage
+- **Blockchain Integration**
+  - Connects to Ethereum-compatible networks (localhost, Sepolia, etc.)
+  - Sends transactions using `ethers.js`
+  - Real-time transaction and balance updates
+  - Real-time transaction rates for ETH through API calls to CoinGecko and Binance as a fallback
+  - Gas estimation with EIP-1559 support
+  - Slow / Normal / Fast fee selection
+  - Real-time fee and remaining balance preview
 
-### Running Tests
+- **Multi-Wallet Support**
+  - Create, import, delete, and switch between wallets
+  - Password change functionality
+  - Persistent wallet state across sessions 
 
-To run all the tests in the project, execute the following command:
+- **Architecture Highlights**
+  - Web Workers implemented to separate frontend and business logic and maintain information secure 
+  - SPA with dynamic loading of pages implemented through a router class.
+  - IndexedDB abstraction layer (`SecureStore`, `StorageUtils`)
 
-```shell
-npx hardhat test
+---
+
+## Tech Stack
+
+- **Frontend:** Vanilla JavaScript, HTML, CSS
+- **Blockchain:** `ethers.js`
+- **Storage:** IndexedDB
+- **Security:** Web Crypto API (AES-GCM, SHA-256)
+- **Concurrency:** Web Workers
+
+---
+
+## Screenshots
+
+*(Optional — add screenshots here later)*
+
+---
+
+## 🧪 Getting Started
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/lapekka11/wallet_project.git
+cd crypto-wallet-app
 ```
-
-You can also selectively run the Solidity or `mocha` tests:
-
-```shell
-npx hardhat test solidity
-npx hardhat test mocha
+### 2. Install Dependencies
+```bash
+npm install
 ```
-
-### Make a deployment to Sepolia
-
-This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
-
-To run the deployment to a local chain:
-
-```shell
-npx hardhat ignition deploy ignition/modules/Counter.ts
+### 3. Start the dev server 
+```bash
+npm run dev
 ```
-
-To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
-
-You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
-
-To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
-
-```shell
-npx hardhat keystore set SEPOLIA_PRIVATE_KEY
-```
-
-After setting the variable, you can run the deployment with the Sepolia network:
-
-```shell
-npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
+### 4. Open in browser 
+```bash 
+http://localhost:3000 
 ```

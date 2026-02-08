@@ -40,7 +40,7 @@ export async function initSettingsPage(){
     });
 
 
-   const currentNetwork = (await sendToWorker("GET_NETWORK")).payload;
+   const currentNetwork = (await sendToWorker("GET_NETWORK_NAME")).payload;
    networkSelect.value = currentNetwork; 
    networkSelect.addEventListener("change", async () => {
         const selected = networkSelect.value;
