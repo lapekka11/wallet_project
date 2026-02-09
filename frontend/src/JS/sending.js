@@ -23,6 +23,8 @@ export async function initSendingPage(){
     const totalCostText = document.getElementById("totalCost");
     const gasEstimate = document.getElementById("gasEstimate");
     const slowButton = document.getElementById("slowBtn");
+    const normalButton = document.getElementById("normalBtn");
+    const fastButton = document.getElementById("fastBtn");
 
 
     let txSpeed = 1.0;
@@ -175,6 +177,7 @@ async function sendTransaction(from, to, amountElement, gasLimit, maxFeePerGas, 
         const passCheck = await sendToWorker("CHECK_PASS_ADDRESS", {password, address: walletData.address}); 
         if(passCheck.type === "FAIL"){
             alert("Incorrect password!");
+            window.router.navigate('/send');
             return;
         }
         const value = amountElement.value;
@@ -182,9 +185,7 @@ async function sendTransaction(from, to, amountElement, gasLimit, maxFeePerGas, 
         const receipt = await sendToWorker("SEND_TX", {encryptedData, password,to, value,gasLimit,maxFeePerGas,maxPriorityFeePerGas});
         if(receipt.type === "TX_SENT"){
             alert("Successfully sent the transaction!");
-        }
-        // Decrypt the private key using the password
-        
+        }        
         return receipt.receipt;
         
     } catch (err) {

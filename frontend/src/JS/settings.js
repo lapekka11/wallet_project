@@ -96,7 +96,7 @@ export async function initSettingsPage(){
         let verification = prompt("To change your password please input your old one: " , "password");
         const password = (await sendToWorker("CHECK_PASS",verification));
 
-        if(password.payload === "true"){
+        if(password.type === "SUCCESS"){
             let newPW = prompt("Please enter your new Password: ", "newPassword");
             let address = currentAddress.textContent;
             console.log(address);

@@ -91,8 +91,14 @@ self.onmessage = async (event) => {
       case "SEND_TX": {
         requireUnlocked();
         const {encryptedData, password, to, value, gasLimit, maxFeePerGas, maxPriorityFeePerGas} = payload;
+        try{
+          await decryptData(encryptedData, password);
+        }
+        catch(e){
+          console.error("Failed to decrypt private key:", e);
+          return reply(id, "FAIL", "Incorrect password or corrupted wallet data");
+        }
 
-        const privateKey = await decryptData(encryptedData, password);
         console.log("privateKEy decrypted");
         
         // Create wallet from decrypted private key
@@ -128,10 +134,10 @@ self.onmessage = async (event) => {
         const wallet = await ethers.Wallet.createRandom().connect(currentNetwork);
         const encryptedData = await encryptData(wallet.privateKey, password);
         const encryptedPassword = await encryptData(password, password);
-        const hashedPassword = await hashPassword(password);
-        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedPassword);
+        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name);
         storage.currWallet = wallet;
         console.log("Wallet saved with address: ", wallet.address);
+        unlockedWallet = wallet;
         return reply(id, "WALLET_SAVED",{address: wallet.address, mnemonic: wallet.mnemonic} );
       }
 
@@ -189,8 +195,7 @@ self.onmessage = async (event) => {
         else{
         const encryptedData = await encryptData(wallet.privateKey, password);
         const encryptedPassword = await encryptData(password, password);
-        const hashedKey = await hashPassword(password);
-        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name, hashedKey);  
+        await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name);  
         storage.currWallet = wallet;          
         return reply(id,"SUCCESS", wallet.address);
         }
@@ -207,39 +212,41 @@ self.onmessage = async (event) => {
     else{
       const encryptedData = await encryptData(wallet.privateKey, password);
       const encryptedPassword = await encryptData(password, password);
-      const hashedKey = await hashPassword(password);
-      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name,hashedKey);         
+      await storage.saveWallet(encryptedData, wallet.address, encryptedPassword, name);         
       storage.currWallet = wallet; 
       return reply(id,"SUCCESS", wallet.address);
     }
 
     }
   case "CHECK_PASS":{
-    const password = payload; 
-    const res = await hashPassword(password);
-    console.log(storage.currWallet);
-    console.log(res);
-    if(res == storage.currWallet.hashedKey){
-      return reply(id,"SUCCESS", "true");
-    }
-    else{
-      return reply(id, "FAIL", "false");
-    }
+    const password = payload;
+
+    try {
+    const walletRecord = storage.currWallet;
+    if (!walletRecord) throw new Error("No wallet selected");
+
+    // Attempt decryption — this is the real password check
+    await decryptData(walletRecord.ciphertext, password);
+
+    return reply(id, "SUCCESS", true);
+  } catch (err) {
+    return reply(id, "FAIL", false);
+  }
   }
 
-    case "CHECK_PASS_ADDRESS":{
+  case "CHECK_PASS_ADDRESS":{
+    try{
     const {password,address} = payload; 
-    const res = await hashPassword(password);
     const curr = await storage.getWallet(address);
+    await decryptData(curr.ciphertext, password); 
     console.log(curr);
-    console.log(res); 
     console.log("NYA");
-    if(res == curr.hashedKey){
       return reply(id,"SUCCESS", "true");
-    }
-    else{
+  }
+  catch(e){
       return reply(id, "FAIL", "false");
-    }
+  }
+    
   }
 
   case "DELETE_WALLET":{
@@ -342,19 +349,5 @@ export async function getETHPriceFromAPI() {
     }
 };
 
-async function hashPassword(password) {
-    // Convert password to byte array
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    
-    // Hash with SHA-256
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    
-    // Convert to hex string for storage
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    return hashHex;
-}
 
 
