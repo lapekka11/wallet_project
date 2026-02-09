@@ -1,4 +1,5 @@
 import SecureStore from "./SecureStore"
+import { encryptData,decryptData    } from "./EncryptionUtils";
 let allWallets;
 let currWallet = null;
 let recentTransactions;
@@ -6,8 +7,6 @@ let contactBook;
 let locked = false;
 let store = null;
 let initialized = false;
-import{ethers} from 'ethers';
-import { encryptData,decryptData    } from "./EncryptionUtils";
 export class StorageUtils{
     constructor(){
         this.db = new SecureStore();
@@ -48,15 +47,13 @@ export class StorageUtils{
         });
     }
 
-    async saveWallet(ciphertext, address, key,  name, hashedKey) {
+    async saveWallet(ciphertext, address, key,  name) {
         if (!this.db) throw new Error('DB not initialized');
         console.log("Saving wallet to DB with address: ", address);
         const tx = this.db.transaction('wallets', 'readwrite');
         const store = tx.objectStore('wallets');
-        console.log("Wallet data to save: ", { address, name, hashedKey });
         return new Promise((resolve, reject) => {
-          console.log("Adding wallet to IndexedDB: ", { address, name, hashedKey });
-            const req = store.add({ address, ciphertext, key, name , createdAt: Date.now(), hashedKey});
+            const req = store.add({ address, ciphertext, key, name , createdAt: Date.now()});
             req.onsuccess = () => resolve(req.result);
             req.onerror = (e) => reject(e.target.error);
         });
@@ -128,7 +125,6 @@ export class StorageUtils{
     
     
     request.onsuccess = () => {
-        console.log(request);
       const allTxs = request.result ;
       const addr = address.toLowerCase();
 
@@ -137,14 +133,12 @@ export class StorageUtils{
         const toMatch = tx.addressTo && tx.addressTo.toLowerCase() === addr;
         return fromMatch || toMatch;
       });
-      console.log(filteredTxs);
 
       const sortedTxs = filteredTxs.sort((a, b) => {
         const timeA = a.timestamp || a.savedAt || 0;
         const timeB = b.timestamp || b.savedAt || 0;
         return timeB - timeA;
       });
-      console.log(sortedTxs);
 
       resolve(sortedTxs.slice(0,limit));
     };
@@ -193,7 +187,6 @@ export class StorageUtils{
             const req = store.get(address);
             
             req.onsuccess = () => {
-            console.log("Wallet found:", req.result);
             resolve(req.result || null);
         };
         
@@ -216,7 +209,6 @@ export class StorageUtils{
 async changePassword(address, newPassword, oldPassword) {
     if (!this.db) throw new Error('DB not initialized');
     
-    // Get all wallets first (outside transaction)
     const tx1 = this.db.transaction('wallets', 'readonly');
     const store1 = tx1.objectStore('wallets');
     
@@ -226,30 +218,21 @@ async changePassword(address, newPassword, oldPassword) {
         req.onerror = (err) => reject(err.target.error);
     });
     
-    // Find the wallet
     const wallet = allWallets.find(w => w.address === address);
     if (!wallet) {
         console.log("Wallet not found");
         return false;
     }
     
-    // Do all async work OUTSIDE any transaction
-    const newHashedKey = await hashPassword(newPassword);
-    console.log("new hashed key: ", newHashedKey);
     
-    // Decrypt and re-encrypt
     const decryptedData = await decryptData(wallet.ciphertext, oldPassword);
     const reEncryptedData = await encryptData(decryptedData, newPassword);
-    console.log("re-encrypted data: ", reEncryptedData);
     
-    // Update wallet object
     const updatedWallet = {
         ...wallet,
-        hashedKey: newHashedKey,
         ciphertext: reEncryptedData
     };
     
-    // Now do the update in a NEW transaction
     const tx2 = this.db.transaction('wallets', 'readwrite');
     const store2 = tx2.objectStore('wallets');
     
@@ -276,8 +259,6 @@ updateCurrWallet(wallet){
 }
 
 async updateRecentTransactions(wallet){
-    console.log(wallet);
-    console.log("nianianianiania");
     this.recentTransactions = await this.getTransactionsByAddress(wallet.address);
     return this.recentTransactions;
 }
@@ -293,24 +274,5 @@ async setNetwork(networkKey) {
 async getNetwork() {
   return (await this.getPreference("selectedNetwork")) || "localhost";
 }
-
-
     
 }
-
-
-async function hashPassword(password) {
-    // Convert password to byte array
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-    
-    // Hash with SHA-256
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    
-    // Convert to hex string for storage
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    
-    return hashHex;
-}
-

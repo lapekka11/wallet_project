@@ -46,23 +46,18 @@ self.onmessage = async (event) => {
         const wallets = await storage.getAllWallets();
         const password = payload.key;
         if (!wallets.length) throw new Error("No wallets stored");
-        console.log("Wallets available for unlocking:", wallets.map(w => w.address));
-        console.log(storage.currWallet);
         const walletRecord = storage.currWallet;
-        console.log("decrypting wallet with address:", currlockedWallet);
         const decrypted = await decryptData(walletRecord.ciphertext, password);
-        console.log("decryption result:", decrypted);
+        unlockedWallet = walletRecord;
         return reply(id, "UNLOCK_OK", { address: walletRecord.address });
       }
 
-      case "LOCK": {
-  // Store the currently unlocked wallet address before clearing it
+  case "LOCK": {
   if (unlockedWallet) {
-    currlockedWallet = unlockedWallet.address; // Should be just the address string
+    currlockedWallet = unlockedWallet.address; 
     console.log("Locking wallet, current locked wallet set to:", currlockedWallet);
   } else if (payload && payload.address) {
-    // If address is provided in payload, use that
-    currlockedWallet = payload.address; // Make sure this is just the address string
+    currlockedWallet = payload.address; 
     console.log("Setting locked wallet to provided address:", currlockedWallet);
   }
   
@@ -97,15 +92,8 @@ self.onmessage = async (event) => {
         catch(e){
           console.error("Failed to decrypt private key:", e);
           return reply(id, "FAIL", "Incorrect password or corrupted wallet data");
-        }
-
-        console.log("privateKEy decrypted");
-        
-        // Create wallet from decrypted private key
+        }        
         const wallet = new ethers.Wallet(privateKey, provider);
-        console.log(provider);
-        console.log("wallet created tho");
-        // Send transaction
         const tx = await wallet.sendTransaction({
             to: to,
             value: ethers.parseEther(value),
@@ -114,8 +102,6 @@ self.onmessage = async (event) => {
             maxPriorityFeePerGas
         });
         
-        console.log('Transaction sent:', tx.hash);
-
         const receipt = await tx.wait();
 
         await storage.saveTransaction(
@@ -185,7 +171,6 @@ self.onmessage = async (event) => {
 
       case "IMPORT_PK":{
         const {seed,password, name} = payload;
-        console.log(payload);
         const wallet = new ethers.Wallet(seed,currentNetwork);
            const existingWallet = await storage.getWallet(wallet.address);
 
@@ -206,7 +191,7 @@ self.onmessage = async (event) => {
     const {seed,password, name} = payload;
     const wallet = ethers.Wallet.fromPhrase(seed, currentNetwork);
     const existingWallet = await storage.getWallet(wallet.address);
-    if (existingWallet) {  // Check if it exists
+    if (existingWallet) {  
      return reply(id, "WALLETALREADYHERE", "Wallet already created");
     }
     else{
@@ -225,7 +210,6 @@ self.onmessage = async (event) => {
     const walletRecord = storage.currWallet;
     if (!walletRecord) throw new Error("No wallet selected");
 
-    // Attempt decryption — this is the real password check
     await decryptData(walletRecord.ciphertext, password);
 
     return reply(id, "SUCCESS", true);
@@ -239,8 +223,6 @@ self.onmessage = async (event) => {
     const {password,address} = payload; 
     const curr = await storage.getWallet(address);
     await decryptData(curr.ciphertext, password); 
-    console.log(curr);
-    console.log("NYA");
       return reply(id,"SUCCESS", "true");
   }
   catch(e){
@@ -263,8 +245,6 @@ self.onmessage = async (event) => {
 
   case "CHANGE_PW": {
     const {address,password, oldPassword} = payload; 
-    console.log(payload);
-    console.log("changing");
     const x = await storage.changePassword(address,password, oldPassword);
     return reply(id, "PW_CHANGED");
   }
@@ -299,7 +279,6 @@ self.onmessage = async (event) => {
 };
 
 function reply(id, type, payload) {
-  console.log("Reply sending:", { id, type, payload });
   self.postMessage({ id, type, payload });
   
 }

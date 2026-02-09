@@ -99,7 +99,6 @@ export async function initSettingsPage(){
         if(password.type === "SUCCESS"){
             let newPW = prompt("Please enter your new Password: ", "newPassword");
             let address = currentAddress.textContent;
-            console.log(address);
             let req = await sendToWorker("CHANGE_PW", {address: address,password: newPW, oldPassword: verification});
             if(req){
                 alert("Password changed succesfully!");
@@ -115,7 +114,6 @@ export async function initSettingsPage(){
     });
  lockWallet.addEventListener('click', async(e) => {
             e.preventDefault();
-            console.log("nia");
             const text = currentAddress.textContent;
             await sendToWorker("LOCK", {address: text});
             document.cookie = "locked = true";
@@ -158,8 +156,6 @@ function renderWallets() {
       currentAddress.textContent = selectedWallet.address;
       
       
-      // You can now use selectedWallet elsewhere in your code
-      console.log('Selected wallet:', selectedWallet);
       window.router.navigate('/dashboard');
 
     });

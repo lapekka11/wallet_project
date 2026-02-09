@@ -1,4 +1,3 @@
-import{ethers} from 'ethers';
 import { getETHPriceFromAPI } from './config';
 import{sendToWorker} from '../../main.js';
 
@@ -45,8 +44,6 @@ import{sendToWorker} from '../../main.js';
         return;
     }
      wallet = (await sendToWorker("GET_CURRWALLET")).payload || null;
-     console.log(wallet);
-     console.log(wallets);
      if(!wallet){
          alert('No wallet found. Please create a wallet first.');
          window.router.navigate('/create');
@@ -55,7 +52,6 @@ import{sendToWorker} from '../../main.js';
 
  
      currentAddress.textContent = `Address: ${wallet.address}`;
-     console.log(wallet);
      const balance = (await sendToWorker("GET_BALANCE")).payload;
      balanceDisplay.textContent = balance + ' ETH';
      const transactions = (await sendToWorker("GET_TXS")).payload ;
@@ -73,7 +69,6 @@ if (!transactions.length) {
 } else {
   transactions.forEach(tx => {
     const row = document.createElement('div');
-    console.log(tx);
     row.innerHTML = `
       <span>${'From: ',tx.addressFrom || 'From: '}</span>
       <span>${'To: ',tx.addressTo || 'To: '}</span>
@@ -92,7 +87,6 @@ if (!transactions.length) {
     
     disconnectBtn.addEventListener('click', async(e) => {
             e.preventDefault();
-            console.log("nia");
             document.cookie = "locked = true";
             const text = currentAddress.textContent;
             await sendToWorker("LOCK", {address: text});
@@ -103,41 +97,15 @@ if (!transactions.length) {
 
 
     const rate = await getETHPriceFromAPI();
-    console.log(rate);
     fiatValue.textContent = "$"+ ((balance) * rate).toFixed(2); 
  }
 
  export async function setWallet(wallet1){
     try{
         wallet = wallet1;
-        console.log("killa");
     }
     catch(e){
         console.log(e.textContent);
     }
     
  }
-
-//export async function initDashboard(){
-//    const balanceDisplay = document.getElementById('balanceDisplay');
-//    const fiatValue = document.getElementById('fiatValue');
-//    const transactionsList = document.getElementById('transactionsList');
-//    const currentAddress = document.getElementById('currentAddress');
-//    const disconnectBtn = document.getElementById('disconnectBtn');
-//    const provider = ethers.getDefaultProvider();
-//    
-//    const wallets = await db.getAllWallets(); 
-//    const wallet = wallets[0];
-//    console.log(wallet);
-//    console.log(wallets);
-//    if(!wallet){
-//        alert('No wallet found. Please create a wallet first.');
-//        window.router.navigate('/create');
-//        return;
-//    }
-//
-//    currentAddress.textContent = `Address: ${wallet.address}`;
-//    balanceDisplay.textContent = await provider.getBalance(wallet.address) + ' ETH';
-//    transactionsList.textContent = wallet.transactionsList || 'No transactions yet';
-//
-//}

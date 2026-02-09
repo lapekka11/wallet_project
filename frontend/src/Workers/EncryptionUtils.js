@@ -67,46 +67,15 @@ async function decryptData(encryptedData, password) {
   try {
     console.log("=== DECRYPTION DEBUG START ===");
     
-    const { ciphertext, iv, authTag, salt } = encryptedData;
+    const { ciphertext, iv, authTag, salt } = encryptedData;  
     
-    // Log the inputs
-    console.log("Inputs received:");
-    console.log("- Password length:", password?.length);
-    console.log("- Ciphertext type:", ciphertext?.constructor?.name, "length:", ciphertext?.length);
-    console.log("- IV type:", iv?.constructor?.name, "length:", iv?.length);
-    console.log("- AuthTag type:", authTag?.constructor?.name, "length:", authTag?.length);
-    console.log("- Salt type:", salt?.constructor?.name, "length:", salt?.length);
-    
-    // Log first few bytes of each (for debugging)
-    console.log("First 5 bytes of ciphertext:", 
-      ciphertext?.slice ? Array.from(ciphertext.slice(0, 5)) : "N/A");
-    console.log("First 5 bytes of IV:", 
-      iv?.slice ? Array.from(iv.slice(0, 5)) : "N/A");
-    console.log("First 5 bytes of authTag:", 
-      authTag?.slice ? Array.from(authTag.slice(0, 5)) : "N/A");
-    console.log("First 5 bytes of salt:", 
-      salt?.slice ? Array.from(salt.slice(0, 5)) : "N/A");
-    
-    // Derive the key
-    console.log("Deriving key...");
+   
     const key = await deriveKey(password, salt);
-    console.log("Key derived successfully");
     
     // Re-combine the ciphertext and the authentication tag
-    console.log("Combining ciphertext and auth tag...");
     const dataWithAuthTag = new Uint8Array(ciphertext.length + authTag.length);
     dataWithAuthTag.set(ciphertext, 0);
     dataWithAuthTag.set(authTag, ciphertext.length);
-    console.log("Combined data length:", dataWithAuthTag.length);
-    
-    console.log("Attempting decryption...");
-    console.log("Decryption parameters:", {
-      algorithm: "AES-GCM",
-      ivLength: iv.length,
-      tagLength: 128,
-      keyType: key.algorithm.name,
-      keyLength: key.algorithm.length
-    });
     
     const decryptedContent = await crypto.subtle.decrypt(
       { 
@@ -118,9 +87,7 @@ async function decryptData(encryptedData, password) {
       dataWithAuthTag,
     );
     
-    console.log("Decryption successful! Decrypted bytes:", decryptedContent.byteLength);
-    console.log("=== DECRYPTION DEBUG END ===");
-    
+   
     return new TextDecoder().decode(decryptedContent);
     
   } catch (err) {
@@ -137,24 +104,6 @@ async function decryptData(encryptedData, password) {
 
 
 
-//async function decryptData(encryptedData, password) {
-//  const { ciphertext, iv, authTag, salt } = encryptedData;
-//  const key = await deriveKey(password, salt);
-// 
-//  // re-combine the ciphertext and the authentication tag
-//  const dataWithAuthTag = new Uint8Array(ciphertext.length + authTag.length);
-//  dataWithAuthTag.set(ciphertext, 0);
-//  dataWithAuthTag.set(authTag, ciphertext.length);
-//  console.log("decrypting after key derivation");
-// 
-//  const decryptedContent = await window.crypto.subtle.decrypt(
-//    { name: "AES-GCM", iv, tagLength: 128 },
-//    key,
-//    dataWithAuthTag,
-//  );
-//  console.log("boutta RETURN");
-//  return new TextDecoder().decode(decryptedContent);
-//}
 
 
 export {deriveKey, encryptData, decryptData};

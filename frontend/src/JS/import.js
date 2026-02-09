@@ -79,7 +79,6 @@ export function initImportPage(){
             const name1 = walletName.value || "Wallet X";
              
             const payload = {seed: seed1, password: password1, name: name1};
-            console.log(payload);
             wallet = await sendToWorker("IMPORT_PK", payload);
         }
         else{

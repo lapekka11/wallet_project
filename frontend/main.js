@@ -1,4 +1,3 @@
-// frontend/main.js
 import { Router } from '/src/JS/router.js';
 import { HomePage, CreateWalletPage, DashboardPage, SettingsPage, SendingPage, ImportPage, LockedPage } from '/src/JS/index.js';
 import { NETWORKS } from '/src/JS/config.js';
@@ -30,12 +29,10 @@ async function initWorker() {
         worker.terminate();
         pending.clear(); // Clear any pending promises
     }
-    console.log("hello")
-    // Create worker with correct path
     worker = new Worker(new URL('./src/Workers/Worker.js', import.meta.url), { 
         type: 'module' 
     });
-    console.log("hello2");
+
     // Set up message handler
     worker.onmessage = (event) => {
         const { id, type, payload } = event.data;
@@ -45,7 +42,6 @@ async function initWorker() {
             console.warn('No resolver for message id:', id);
             return;
         }
-        console.log("hello3");
         
         pending.delete(id);
 
@@ -98,21 +94,17 @@ window.addEventListener('load', async () => {
     console.log('Page loaded, initializing worker...');
     
     try {
-        // Initialize worker first
         await initWorker();
         
-        // Initialize router
         router.init();
         window.router = router;
         
-        // Send network initialization to worker
         console.log('Initializing worker with network...');
         const result = await sendToWorker("INIT", { rpcUrl: NETWORKS.localhost.rpcUrl });
         console.log('Worker network initialized:', result);
         
     } catch (error) {
         console.error('Failed to initialize:', error);
-        // You might want to show an error to the user here
         alert('Failed to initialize application. Please refresh the page.');
     }
 });
@@ -137,7 +129,6 @@ export function sendToWorker(type, payload = {}) {
             return;
         }
         
-        // Add timeout to prevent hanging promises
         const timeoutId = setTimeout(() => {
             if (pending.has(id)) {
                 pending.delete(id);
@@ -156,5 +147,4 @@ export const walletAPI = {
     sendTransaction: (tx) => sendToWorker("SEND_TX", { tx })
 };
 
-// Make walletAPI available globally for debugging/development
 window.walletAPI = walletAPI;
