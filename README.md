@@ -10,7 +10,7 @@ This is a simple, client-side webapp I built using **JavaScript**, **Web Workers
 
 - **Secure Wallet Storage**
   - Private keys encrypted using Web Crypto API.
-  -     Namely, PBKDF and AES-GCM with passwords being hashed for storage and authentication purposes.
+  -     Namely, PBKDF and AES-GCM for storage and authentication purposes.
   - Wallets stored securely in an IndexedDB instance
   - Password-based encryption and verification
 
