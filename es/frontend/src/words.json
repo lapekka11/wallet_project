@@ -1,0 +1,33 @@
+{
+  "addressBook": {
+    "lowAddress": "address",
+    "lowAddresses": "addresses",
+    "scanQR": "okkofalkmsdf"
+  },
+  "assets": {
+  },
+  "boltz": {
+  },
+  "giftCards": {
+  },
+  "lendasat": {
+  },
+  "referral": {
+    "infoSlides": [
+      {
+      }
+    ]
+  },
+  "swap": {
+  },
+  "card": {
+  },
+  "staking": {
+  },
+  "statement": {
+    "infoSlides": [
+      {
+      }
+    ]
+  }
+}
